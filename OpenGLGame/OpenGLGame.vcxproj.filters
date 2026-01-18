@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="OpenGLWindow.cpp">
+      <Filter>OpenGL\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Encoding.cpp">
+      <Filter>utill</Filter>
+    </ClCompile>
+    <ClCompile Include="stb_image.cpp">
+      <Filter>utill</Filter>
+    </ClCompile>
+    <ClCompile Include="glad.cpp">
+      <Filter>glad</Filter>
+    </ClCompile>
+    <ClCompile Include="MainWindow.cpp">
+      <Filter>OpenGL\Window</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="OpenGLWindow.h">
+      <Filter>OpenGL\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Encoding.h">
+      <Filter>utill</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>utill</Filter>
+    </ClInclude>
+    <ClInclude Include="MainWindow.h">
+      <Filter>OpenGL\Window</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="OpenGL">
+      <UniqueIdentifier>{026fcf31-3194-4132-86ca-c899c4abe57e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenGL\Window">
+      <UniqueIdentifier>{aa5cb281-154d-4f6f-9c2d-00fa69efa950}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utill">
+      <UniqueIdentifier>{8c9dbbd4-7c97-4388-a431-c162517d59e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="glad">
+      <UniqueIdentifier>{4ef79659-2c0e-4117-b71c-24a830ec1b0c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
