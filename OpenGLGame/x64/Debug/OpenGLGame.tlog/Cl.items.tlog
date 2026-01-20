@@ -1,6 +1,11 @@
-C:\Project\OpenGLGame\OpenGLGame\Encoding.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\Encoding.obj
-C:\Project\OpenGLGame\OpenGLGame\glad.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\glad.obj
-C:\Project\OpenGLGame\OpenGLGame\main.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\main.obj
-C:\Project\OpenGLGame\OpenGLGame\MainWindow.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\MainWindow.obj
-C:\Project\OpenGLGame\OpenGLGame\OpenGLWindow.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\OpenGLWindow.obj
-C:\Project\OpenGLGame\OpenGLGame\stb_image.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\stb_image.obj
+D:\Project\OpenGL-Game\OpenGLGame\Encoding.cpp;D:\Project\OpenGL-Game\OpenGLGame\x64\Debug\Encoding.obj
+D:\Project\OpenGL-Game\OpenGLGame\glad.cpp;D:\Project\OpenGL-Game\OpenGLGame\x64\Debug\glad.obj
+D:\Project\OpenGL-Game\OpenGLGame\main.cpp;D:\Project\OpenGL-Game\OpenGLGame\x64\Debug\main.obj
+D:\Project\OpenGL-Game\OpenGLGame\MainWindow.cpp;D:\Project\OpenGL-Game\OpenGLGame\x64\Debug\MainWindow.obj
+D:\Project\OpenGL-Game\OpenGLGame\OpenGLWindow.cpp;D:\Project\OpenGL-Game\OpenGLGame\x64\Debug\OpenGLWindow.obj
+D:\Project\OpenGL-Game\OpenGLGame\pch.cpp;D:\Project\OpenGL-Game\OpenGLGame\x64\Debug\pch.obj
+D:\Project\OpenGL-Game\OpenGLGame\ResourceManager.cpp;D:\Project\OpenGL-Game\OpenGLGame\x64\Debug\ResourceManager.obj
+D:\Project\OpenGL-Game\OpenGLGame\Sprite.cpp;D:\Project\OpenGL-Game\OpenGLGame\x64\Debug\Sprite.obj
+D:\Project\OpenGL-Game\OpenGLGame\stb_image.cpp;D:\Project\OpenGL-Game\OpenGLGame\x64\Debug\stb_image.obj
+D:\Project\OpenGL-Game\OpenGLGame\Texture2D.cpp;D:\Project\OpenGL-Game\OpenGLGame\x64\Debug\Texture2D.obj
+D:\Project\OpenGL-Game\OpenGLGame\VertexBuffer2D.cpp;D:\Project\OpenGL-Game\OpenGLGame\x64\Debug\VertexBuffer2D.obj
