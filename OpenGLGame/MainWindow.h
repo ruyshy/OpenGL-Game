@@ -4,6 +4,7 @@
 #define MAINWINDOW_H_
 
 #include "OpenGLWindow.h"
+#include "PuzzleBoard.h"
 
 class MainWindow : public OpenGLWindow
 {
@@ -17,6 +18,9 @@ public:
     virtual void onWindowSizeChanged(int width, int height);
     virtual void onMouseButtonPressed(int button, int action);
 
+private:
+    PuzzleBoard _puzzleBoard;
+    double _titleAccumulator = 0.0;
 };
 
 

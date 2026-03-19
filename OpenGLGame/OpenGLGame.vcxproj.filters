@@ -1,99 +1,210 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="OpenGLWindow.cpp">
-      <Filter>OpenGL\Window</Filter>
+    <ClCompile Include="main.cpp">
+      <Filter>App</Filter>
     </ClCompile>
-    <ClCompile Include="Encoding.cpp">
-      <Filter>utill</Filter>
-    </ClCompile>
-    <ClCompile Include="stb_image.cpp">
-      <Filter>utill</Filter>
-    </ClCompile>
-    <ClCompile Include="glad.cpp">
-      <Filter>glad</Filter>
+    <ClCompile Include="pch.cpp">
+      <Filter>App</Filter>
     </ClCompile>
     <ClCompile Include="MainWindow.cpp">
-      <Filter>OpenGL\Window</Filter>
+      <Filter>App\Window</Filter>
     </ClCompile>
-    <ClCompile Include="VertexBuffer2D.cpp">
-      <Filter>OpenGL\VertexBuffer2D</Filter>
+    <ClCompile Include="OpenGLWindow.cpp">
+      <Filter>App\Window</Filter>
     </ClCompile>
-    <ClCompile Include="Texture2D.cpp">
-      <Filter>OpenGL\Texture2D</Filter>
+    <ClCompile Include="PuzzleBoard.cpp">
+      <Filter>Puzzle\Core</Filter>
     </ClCompile>
-    <ClCompile Include="pch.cpp" />
-    <ClCompile Include="Sprite.cpp">
-      <Filter>OpenGL\Sprite</Filter>
+    <ClCompile Include="PuzzleRuleEngine.cpp">
+      <Filter>Puzzle\Rules</Filter>
+    </ClCompile>
+    <ClCompile Include="PuzzleInputController.cpp">
+      <Filter>Puzzle\Flow</Filter>
+    </ClCompile>
+    <ClCompile Include="SwapResolver.cpp">
+      <Filter>Puzzle\Flow</Filter>
+    </ClCompile>
+    <ClCompile Include="CascadeResolver.cpp">
+      <Filter>Puzzle\Flow</Filter>
+    </ClCompile>
+    <ClCompile Include="SpecialComboResolver.cpp">
+      <Filter>Puzzle\Flow</Filter>
+    </ClCompile>
+    <ClCompile Include="BoardStateMachine.cpp">
+      <Filter>Puzzle\Flow</Filter>
+    </ClCompile>
+    <ClCompile Include="MatchFactory.cpp">
+      <Filter>Puzzle\Flow</Filter>
+    </ClCompile>
+    <ClCompile Include="SpawnResolver.cpp">
+      <Filter>Puzzle\Flow</Filter>
+    </ClCompile>
+    <ClCompile Include="ShuffleResolver.cpp">
+      <Filter>Puzzle\Flow</Filter>
+    </ClCompile>
+    <ClCompile Include="BoardAnimator.cpp">
+      <Filter>Puzzle\Presentation</Filter>
+    </ClCompile>
+    <ClCompile Include="PuzzleRenderer.cpp">
+      <Filter>Puzzle\Presentation</Filter>
+    </ClCompile>
+    <ClCompile Include="SpecialEffectSystem.cpp">
+      <Filter>Puzzle\Presentation</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSession.cpp">
+      <Filter>Puzzle\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="ComboSystem.cpp">
+      <Filter>Puzzle\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="Encoding.cpp">
+      <Filter>Support\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="stb_image.cpp">
+      <Filter>Support\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="glad.cpp">
+      <Filter>Support\ThirdParty</Filter>
     </ClCompile>
     <ClCompile Include="ResourceManager.cpp">
-      <Filter>Management</Filter>
+      <Filter>OpenGL\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Sprite.cpp">
+      <Filter>OpenGL\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture2D.cpp">
+      <Filter>OpenGL\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexBuffer2D.cpp">
+      <Filter>OpenGL\Rendering</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="pch.h" />
-    <ClInclude Include="OpenGLWindow.h">
-      <Filter>OpenGL\Window</Filter>
-    </ClInclude>
-    <ClInclude Include="Encoding.h">
-      <Filter>utill</Filter>
-    </ClInclude>
-    <ClInclude Include="stb_image.h">
-      <Filter>utill</Filter>
+    <ClInclude Include="pch.h">
+      <Filter>App</Filter>
     </ClInclude>
     <ClInclude Include="MainWindow.h">
-      <Filter>OpenGL\Window</Filter>
+      <Filter>App\Window</Filter>
     </ClInclude>
-    <ClInclude Include="VertexBuffer2D.h">
-      <Filter>OpenGL\VertexBuffer2D</Filter>
+    <ClInclude Include="OpenGLWindow.h">
+      <Filter>App\Window</Filter>
     </ClInclude>
-    <ClInclude Include="Transform2D.h">
-      <Filter>OpenGL\Transform2D</Filter>
+    <ClInclude Include="PuzzleBoard.h">
+      <Filter>Puzzle\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Texture2D.h">
-      <Filter>OpenGL\Texture2D</Filter>
+    <ClInclude Include="PuzzleTypes.h">
+      <Filter>Puzzle\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="PuzzleRuleEngine.h">
+      <Filter>Puzzle\Rules</Filter>
+    </ClInclude>
+    <ClInclude Include="PuzzleInputController.h">
+      <Filter>Puzzle\Flow</Filter>
+    </ClInclude>
+    <ClInclude Include="SwapResolver.h">
+      <Filter>Puzzle\Flow</Filter>
+    </ClInclude>
+    <ClInclude Include="CascadeResolver.h">
+      <Filter>Puzzle\Flow</Filter>
+    </ClInclude>
+    <ClInclude Include="SpecialComboResolver.h">
+      <Filter>Puzzle\Flow</Filter>
+    </ClInclude>
+    <ClInclude Include="BoardStateMachine.h">
+      <Filter>Puzzle\Flow</Filter>
+    </ClInclude>
+    <ClInclude Include="MatchFactory.h">
+      <Filter>Puzzle\Flow</Filter>
+    </ClInclude>
+    <ClInclude Include="SpawnResolver.h">
+      <Filter>Puzzle\Flow</Filter>
+    </ClInclude>
+    <ClInclude Include="ShuffleResolver.h">
+      <Filter>Puzzle\Flow</Filter>
+    </ClInclude>
+    <ClInclude Include="BoardAnimator.h">
+      <Filter>Puzzle\Presentation</Filter>
+    </ClInclude>
+    <ClInclude Include="PuzzleRenderer.h">
+      <Filter>Puzzle\Presentation</Filter>
+    </ClInclude>
+    <ClInclude Include="SpecialEffectSystem.h">
+      <Filter>Puzzle\Presentation</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSession.h">
+      <Filter>Puzzle\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="ComboSystem.h">
+      <Filter>Puzzle\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Encoding.h">
+      <Filter>Support\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>Support\Utilities</Filter>
     </ClInclude>
     <ClInclude Include="Shader.h">
-      <Filter>OpenGL\Shader</Filter>
+      <Filter>OpenGL\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Sprite.h">
-      <Filter>OpenGL\Sprite</Filter>
+      <Filter>OpenGL\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture2D.h">
+      <Filter>OpenGL\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform2D.h">
+      <Filter>OpenGL\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexBuffer2D.h">
+      <Filter>OpenGL\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="ResourceManager.h">
-      <Filter>Management</Filter>
+      <Filter>OpenGL\Resources</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <Filter Include="App">
+      <UniqueIdentifier>{03E1D383-7F0B-45E4-9C97-FF4EDEFE5C01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="App\Window">
+      <UniqueIdentifier>{238782D3-B201-4B4A-B128-0D3A5DC905CA}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Puzzle">
+      <UniqueIdentifier>{699DAA3D-5BF9-4A89-B14A-8A7E42F7BC3F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Puzzle\Core">
+      <UniqueIdentifier>{A7F3E4C0-42E7-48E7-A67B-E9B2F84F0B85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Puzzle\Rules">
+      <UniqueIdentifier>{62D319CF-19D8-48A7-84D9-1D571EED7936}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Puzzle\Flow">
+      <UniqueIdentifier>{3A9A0FA5-D1D1-48B4-9B70-11C3A4C7C3A2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Puzzle\Presentation">
+      <UniqueIdentifier>{FBC64B68-9808-40BF-A2D2-660B3AB98C4A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Puzzle\Systems">
+      <UniqueIdentifier>{9A4469B7-9F02-447A-84AD-57A16D6EAD64}</UniqueIdentifier>
+    </Filter>
     <Filter Include="OpenGL">
-      <UniqueIdentifier>{026fcf31-3194-4132-86ca-c899c4abe57e}</UniqueIdentifier>
+      <UniqueIdentifier>{4B652861-D72B-4A6C-A2D9-CFBBFA977B85}</UniqueIdentifier>
     </Filter>
-    <Filter Include="OpenGL\Window">
-      <UniqueIdentifier>{aa5cb281-154d-4f6f-9c2d-00fa69efa950}</UniqueIdentifier>
+    <Filter Include="OpenGL\Rendering">
+      <UniqueIdentifier>{B303B677-EAB7-43E5-8E05-C7C39CC4A378}</UniqueIdentifier>
     </Filter>
-    <Filter Include="utill">
-      <UniqueIdentifier>{8c9dbbd4-7c97-4388-a431-c162517d59e8}</UniqueIdentifier>
+    <Filter Include="OpenGL\Resources">
+      <UniqueIdentifier>{D95C2D6A-C468-4D41-B34B-7D413403AB48}</UniqueIdentifier>
     </Filter>
-    <Filter Include="glad">
-      <UniqueIdentifier>{4ef79659-2c0e-4117-b71c-24a830ec1b0c}</UniqueIdentifier>
+    <Filter Include="Support">
+      <UniqueIdentifier>{A2EA2863-7224-4892-9396-5B44C39F2BD0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="OpenGL\VertexBuffer2D">
-      <UniqueIdentifier>{aaf8fb9b-7be0-4430-87a1-b2b1ee340660}</UniqueIdentifier>
+    <Filter Include="Support\Utilities">
+      <UniqueIdentifier>{7129059E-D4C0-44FB-9785-841171903AA6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="OpenGL\Transform2D">
-      <UniqueIdentifier>{4a354dfd-4c22-4066-becd-d0195baf1e48}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="OpenGL\Texture2D">
-      <UniqueIdentifier>{df82d0e9-7dda-4787-96c3-2ef96d695f42}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="OpenGL\Shader">
-      <UniqueIdentifier>{a3ceb2ac-838a-47bc-a425-8b53a6b48538}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="OpenGL\Sprite">
-      <UniqueIdentifier>{d4533348-9795-445e-a0fe-88f1849cba1c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Management">
-      <UniqueIdentifier>{99d1df4a-c511-42ce-8850-ae1e57c42dad}</UniqueIdentifier>
+    <Filter Include="Support\ThirdParty">
+      <UniqueIdentifier>{95B34EC7-7E65-4E3E-B797-EF1AF19037F2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
