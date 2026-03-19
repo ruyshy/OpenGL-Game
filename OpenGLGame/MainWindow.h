@@ -4,6 +4,10 @@
 #define MAINWINDOW_H_
 
 #include "OpenGLWindow.h"
+#include "TetrisAudio.h"
+#include "TetrisGame.h"
+#include "TetrisInputController.h"
+#include "TetrisRenderer.h"
 
 class MainWindow : public OpenGLWindow
 {
@@ -17,7 +21,14 @@ public:
     virtual void onWindowSizeChanged(int width, int height);
     virtual void onMouseButtonPressed(int button, int action);
 
-};
+private:
+    TetrisAudio audio_;
+    TetrisGame game_;
+    TetrisInputController inputController_;
+    TetrisRenderer renderer_;
 
+private:
+    void updateWindowTitle() const;
+};
 
 #endif // !MAINWINDOW_H_

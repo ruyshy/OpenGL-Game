@@ -1,0 +1,15 @@
+C:\Users\jaehyeok\Desktop\OpenGL-Game\OpenGLGame\Encoding.cpp;C:\Users\jaehyeok\Desktop\OpenGL-Game\OpenGLGame\x64\Release\Encoding.obj
+C:\Users\jaehyeok\Desktop\OpenGL-Game\OpenGLGame\glad.cpp;C:\Users\jaehyeok\Desktop\OpenGL-Game\OpenGLGame\x64\Release\glad.obj
+C:\Users\jaehyeok\Desktop\OpenGL-Game\OpenGLGame\main.cpp;C:\Users\jaehyeok\Desktop\OpenGL-Game\OpenGLGame\x64\Release\main.obj
+C:\Users\jaehyeok\Desktop\OpenGL-Game\OpenGLGame\MainWindow.cpp;C:\Users\jaehyeok\Desktop\OpenGL-Game\OpenGLGame\x64\Release\MainWindow.obj
+C:\Users\jaehyeok\Desktop\OpenGL-Game\OpenGLGame\OpenGLWindow.cpp;C:\Users\jaehyeok\Desktop\OpenGL-Game\OpenGLGame\x64\Release\OpenGLWindow.obj
+C:\Users\jaehyeok\Desktop\OpenGL-Game\OpenGLGame\pch.cpp;C:\Users\jaehyeok\Desktop\OpenGL-Game\OpenGLGame\x64\Release\pch.obj
+C:\Users\jaehyeok\Desktop\OpenGL-Game\OpenGLGame\ResourceManager.cpp;C:\Users\jaehyeok\Desktop\OpenGL-Game\OpenGLGame\x64\Release\ResourceManager.obj
+C:\Users\jaehyeok\Desktop\OpenGL-Game\OpenGLGame\Sprite.cpp;C:\Users\jaehyeok\Desktop\OpenGL-Game\OpenGLGame\x64\Release\Sprite.obj
+C:\Users\jaehyeok\Desktop\OpenGL-Game\OpenGLGame\stb_image.cpp;C:\Users\jaehyeok\Desktop\OpenGL-Game\OpenGLGame\x64\Release\stb_image.obj
+C:\Users\jaehyeok\Desktop\OpenGL-Game\OpenGLGame\TetrisAudio.cpp;C:\Users\jaehyeok\Desktop\OpenGL-Game\OpenGLGame\x64\Release\TetrisAudio.obj
+C:\Users\jaehyeok\Desktop\OpenGL-Game\OpenGLGame\TetrisGame.cpp;C:\Users\jaehyeok\Desktop\OpenGL-Game\OpenGLGame\x64\Release\TetrisGame.obj
+C:\Users\jaehyeok\Desktop\OpenGL-Game\OpenGLGame\TetrisInputController.cpp;C:\Users\jaehyeok\Desktop\OpenGL-Game\OpenGLGame\x64\Release\TetrisInputController.obj
+C:\Users\jaehyeok\Desktop\OpenGL-Game\OpenGLGame\TetrisRenderer.cpp;C:\Users\jaehyeok\Desktop\OpenGL-Game\OpenGLGame\x64\Release\TetrisRenderer.obj
+C:\Users\jaehyeok\Desktop\OpenGL-Game\OpenGLGame\Texture2D.cpp;C:\Users\jaehyeok\Desktop\OpenGL-Game\OpenGLGame\x64\Release\Texture2D.obj
+C:\Users\jaehyeok\Desktop\OpenGL-Game\OpenGLGame\VertexBuffer2D.cpp;C:\Users\jaehyeok\Desktop\OpenGL-Game\OpenGLGame\x64\Release\VertexBuffer2D.obj

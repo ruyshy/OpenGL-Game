@@ -17,6 +17,31 @@
     <ClCompile Include="MainWindow.cpp">
       <Filter>OpenGL\Window</Filter>
     </ClCompile>
+    <ClCompile Include="VertexBuffer2D.cpp">
+      <Filter>OpenGL\VertexBuffer2D</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture2D.cpp">
+      <Filter>OpenGL\Texture2D</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="Sprite.cpp">
+      <Filter>OpenGL\Sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceManager.cpp">
+      <Filter>Management</Filter>
+    </ClCompile>
+    <ClCompile Include="TetrisAudio.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="TetrisGame.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="TetrisRenderer.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="TetrisInputController.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -32,6 +57,39 @@
     <ClInclude Include="MainWindow.h">
       <Filter>OpenGL\Window</Filter>
     </ClInclude>
+    <ClInclude Include="VertexBuffer2D.h">
+      <Filter>OpenGL\VertexBuffer2D</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform2D.h">
+      <Filter>OpenGL\Transform2D</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture2D.h">
+      <Filter>OpenGL\Texture2D</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>OpenGL\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Sprite.h">
+      <Filter>OpenGL\Sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceManager.h">
+      <Filter>Management</Filter>
+    </ClInclude>
+    <ClInclude Include="TetrisAudio.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="TetrisGame.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="TetrisRenderer.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="TetrisInputController.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="TetrisHudConfig.h">
+      <Filter>Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="OpenGL">
@@ -45,6 +103,27 @@
     </Filter>
     <Filter Include="glad">
       <UniqueIdentifier>{4ef79659-2c0e-4117-b71c-24a830ec1b0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenGL\VertexBuffer2D">
+      <UniqueIdentifier>{aaf8fb9b-7be0-4430-87a1-b2b1ee340660}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenGL\Transform2D">
+      <UniqueIdentifier>{4a354dfd-4c22-4066-becd-d0195baf1e48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenGL\Texture2D">
+      <UniqueIdentifier>{df82d0e9-7dda-4787-96c3-2ef96d695f42}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenGL\Shader">
+      <UniqueIdentifier>{a3ceb2ac-838a-47bc-a425-8b53a6b48538}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenGL\Sprite">
+      <UniqueIdentifier>{d4533348-9795-445e-a0fe-88f1849cba1c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Management">
+      <UniqueIdentifier>{99d1df4a-c511-42ce-8850-ae1e57c42dad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game">
+      <UniqueIdentifier>{cd4f8042-a7ee-4d35-b4cb-e4d65f9a93cf}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

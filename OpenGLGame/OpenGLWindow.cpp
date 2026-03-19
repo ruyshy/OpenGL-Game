@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "OpenGLWindow.h"
+#include <filesystem>
 
 map<GLFWwindow*, OpenGLWindow*> OpenGLWindow::_windows;
 
@@ -55,10 +56,27 @@ bool OpenGLWindow::createOpenGLWindow(const string& windowTitle, int majorVersio
     glfwSetScrollCallback(_window, onMouseWheelScrollStatic);
     _windows[_window] = this;
 
-    GLFWimage images[1];
-    images[0].pixels = stbi_load(".\\Image\\icon.png", &images[0].width, &images[0].height, 0, 4); //rgba channels 
-    glfwSetWindowIcon(this->getWindow(), 1, images);
-    stbi_image_free(images[0].pixels);
+    const std::array<std::string, 2> iconCandidates = {
+        ".\\OpenGLGame\\Image\\icon.png",
+        ".\\Image\\icon.png"
+    };
+
+    for (const auto& iconPath : iconCandidates)
+    {
+        if (!std::filesystem::exists(iconPath))
+        {
+            continue;
+        }
+
+        GLFWimage images[1];
+        images[0].pixels = stbi_load(iconPath.c_str(), &images[0].width, &images[0].height, 0, 4);
+        if (images[0].pixels != nullptr)
+        {
+            glfwSetWindowIcon(this->getWindow(), 1, images);
+            stbi_image_free(images[0].pixels);
+        }
+        break;
+    }
 
     return true;
 }

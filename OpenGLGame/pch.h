@@ -17,6 +17,7 @@
 #include <set>
 #include <map>
 #include <algorithm>
+#include <cmath>
 #include <stddef.h>
 #include <random>
 #include <thread>
