@@ -11,7 +11,9 @@ void Texture2D::use()
 
 Texture2D TextureSystem::Generate(const char* filename)
 {
-	Texture2D result;
+	Texture2D result{};
+	result.width = 1;
+	result.height = 1;
 
 	int width, height, numcomponents;
 	unsigned char* data;
@@ -42,7 +44,14 @@ Texture2D TextureSystem::Generate(const char* filename)
 	{
 		cout << "failed to load image : " << filename << endl;
 		cout << "============================================" << endl;
-		stbi_image_free(data);
+
+		const unsigned char fallbackPixel[4] = { 255, 0, 255, 255 };
+		glBindTexture(GL_TEXTURE_2D, textureID);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, fallbackPixel);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
 
 	stbi_image_free(data);
@@ -52,7 +61,9 @@ Texture2D TextureSystem::Generate(const char* filename)
 
 Texture2D TextureSystem::Generate(std::string image)
 {
-	Texture2D result;
+	Texture2D result{};
+	result.width = 1;
+	result.height = 1;
 
 	string copy = image;
 	int width, height, numcomponents;
@@ -86,7 +97,14 @@ Texture2D TextureSystem::Generate(std::string image)
 	{
 		cout << "failed to load image " << endl;
 		cout << "============================================" << endl;
-		stbi_image_free(data);
+
+		const unsigned char fallbackPixel[4] = { 255, 0, 255, 255 };
+		glBindTexture(GL_TEXTURE_2D, textureID);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, fallbackPixel);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
 
 	stbi_image_free(data);

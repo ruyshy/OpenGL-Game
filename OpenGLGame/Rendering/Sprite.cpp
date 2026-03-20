@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Sprite.h"
 
+#include "Animation2D.h"
 #include "Shader.h"
 
 #include "VertexBuffer2D.h"
@@ -36,8 +37,19 @@ void Sprite::Draw()
 	mpShader->use();
 	mpShader->setFloat("zDepth", mZDepth);
 	mpShader->setMat4("model_matrx", mpTransform->Get());
+	mpShader->setVec4("tintColor", mTintColor);
 	mpTextured->use();
 	mpVertexBufferObject->Draw();
+}
+
+void Sprite::ApplyAnimation(Animation2D& animation, double deltaTime)
+{
+	if (mpTextured == nullptr || mpVertexBufferObject == nullptr)
+	{
+		return;
+	}
+
+	animation.play(*mpTextured, *mpVertexBufferObject, deltaTime);
 }
 
 bool Sprite::checkCollision(shared_ptr<Sprite> other, double offset)
@@ -79,6 +91,8 @@ void Sprite::update()
 }
 
 shared_ptr<Transform2D> Sprite::GetTransform() { return mpTransform; }
+shared_ptr<Texture2D> Sprite::GetTexture() { return mpTextured; }
+shared_ptr<VertexBufferObject2D> Sprite::GetVertexBuffer() { return mpVertexBufferObject; }
 bool Sprite::GetVisible() { return mVisible; }
 vec2 Sprite::GetPosition() { return mpTransform->GetPosition(); }
 vec2 Sprite::GetCenter() { return mpTransform->GetCenter(); }
@@ -88,6 +102,7 @@ float Sprite::GetAngle() { return mpTransform->GetAngle(); }
 bool Sprite::GetFlipX() { return mpTransform->GetFlipX(); }
 bool Sprite::GetFlipY() { return mpTransform->GetFlipY(); }
 vec4 Sprite::GetScreen() { return vec4(mScreenX, mScreenY, mScreenW, mScreenH); }
+vec4 Sprite::GetTintColor() { return mTintColor; }
 
 
 //Set
@@ -108,3 +123,5 @@ void Sprite::SetScale(float x, float y) { mpTransform->SetScale(vec2(x, y)); }
 void Sprite::SetAngle(float angle) { mpTransform->SetAngle(angle); }
 void Sprite::SetFlipX(bool flip) { mpTransform->SetFlipX(flip); }
 void Sprite::SetFlipY(bool flip) { mpTransform->SetFlipY(flip); }
+void Sprite::SetTintColor(const vec4& color) { mTintColor = color; }
+void Sprite::SetTintColor(float r, float g, float b, float a) { mTintColor = vec4(r, g, b, a); }

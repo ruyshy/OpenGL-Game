@@ -6,6 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <iomanip>
 #include <functional>
 #include <cstdio>
 #include <tchar.h>
@@ -17,10 +18,14 @@
 #include <list>
 #include <set>
 #include <map>
+#include <unordered_map>
+#include <unordered_set>
+#include <string_view>
 #include <algorithm>
 #include <stddef.h>
 #include <random>
 #include <thread>
+#include <filesystem>
 
 #include <Windows.h>
 #include <cstring>
@@ -43,9 +48,8 @@ using namespace std;
 
 using namespace glm;
 
-//#include <ft2build.h>
-//#include FT_FREETYPE_H  
-//#pragma comment(lib,"freetype.lib")
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 #include "stb_image.h"
 

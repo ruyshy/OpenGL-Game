@@ -1,144 +1,170 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="OpenGLWindow.cpp">
-      <Filter>OpenGL\Window</Filter>
+    <Filter Include="App">
+      <UniqueIdentifier>{a645d767-22f8-49fb-b179-0cd9910898f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core">
+      <UniqueIdentifier>{6a3c73b3-2896-4d48-a391-f3208fafabf1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Data">
+      <UniqueIdentifier>{0c9ac23f-0ad4-4ed1-a8d3-7862c7f7c213}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering">
+      <UniqueIdentifier>{d1d6f5d6-7287-4552-a502-d1cbf79e1326}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes">
+      <UniqueIdentifier>{07176b22-02c3-4172-ac10-42792fcb8f44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Text">
+      <UniqueIdentifier>{1e36e873-8882-4f82-b7a5-36c9547db060}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="World">
+      <UniqueIdentifier>{8f95d59b-fd66-4f9c-b346-fd40c15750e0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="App\main.cpp">
+      <Filter>App</Filter>
     </ClCompile>
-    <ClCompile Include="Encoding.cpp">
-      <Filter>utill</Filter>
+    <ClCompile Include="App\InputState.cpp">
+      <Filter>App</Filter>
     </ClCompile>
-    <ClCompile Include="stb_image.cpp">
-      <Filter>utill</Filter>
+    <ClCompile Include="App\MainWindow.cpp">
+      <Filter>App</Filter>
     </ClCompile>
-    <ClCompile Include="glad.cpp">
-      <Filter>glad</Filter>
+    <ClCompile Include="App\OpenGLWindow.cpp">
+      <Filter>App</Filter>
     </ClCompile>
-    <ClCompile Include="MainWindow.cpp">
-      <Filter>OpenGL\Window</Filter>
+    <ClCompile Include="Data\SandforgeDatabase.cpp">
+      <Filter>Data</Filter>
     </ClCompile>
-    <ClCompile Include="VertexBuffer2D.cpp">
-      <Filter>OpenGL\VertexBuffer2D</Filter>
+    <ClCompile Include="Rendering\Animation2D.cpp">
+      <Filter>Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="Texture2D.cpp">
-      <Filter>OpenGL\Texture2D</Filter>
+    <ClCompile Include="Rendering\glad.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\ResourceManager.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Sprite.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\stb_image.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Texture2D.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\VertexBuffer2D.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Scenes\GameplayScene.cpp">
+      <Filter>Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Scenes\GameplayState.cpp">
+      <Filter>Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Scenes\HowToPlayScene.cpp">
+      <Filter>Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Scenes\TitleScene.cpp">
+      <Filter>Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Text\Encoding.cpp">
+      <Filter>Text</Filter>
+    </ClCompile>
+    <ClCompile Include="Text\FontAsset.cpp">
+      <Filter>Text</Filter>
+    </ClCompile>
+    <ClCompile Include="Text\FreeTypeService.cpp">
+      <Filter>Text</Filter>
+    </ClCompile>
+    <ClCompile Include="Text\TextEngine.cpp">
+      <Filter>Text</Filter>
+    </ClCompile>
+    <ClCompile Include="World\SandforgeWorld.cpp">
+      <Filter>World</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="Sprite.cpp">
-      <Filter>OpenGL\Sprite</Filter>
-    </ClCompile>
-    <ClCompile Include="ResourceManager.cpp">
-      <Filter>Management</Filter>
-    </ClCompile>
-    <ClCompile Include="Animation2D.cpp">
-      <Filter>OpenGL\Animation2D</Filter>
-    </ClCompile>
-    <ClCompile Include="GameplayScene.cpp">
-      <Filter>Game\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="GameplayState.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="InputState.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="TitleScene.cpp">
-      <Filter>Game\Scene</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="App\GameContext.h">
+      <Filter>App</Filter>
+    </ClInclude>
+    <ClInclude Include="App\InputState.h">
+      <Filter>App</Filter>
+    </ClInclude>
+    <ClInclude Include="App\MainWindow.h">
+      <Filter>App</Filter>
+    </ClInclude>
+    <ClInclude Include="App\OpenGLWindow.h">
+      <Filter>App</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\SandforgeTypes.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Data\SandforgeDatabase.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Animation2D.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\ResourceManager.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Shader.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Sprite.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\stb_image.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Texture2D.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Transform2D.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\VertexBuffer2D.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Scenes\GameScene.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Scenes\GameplayScene.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Scenes\GameplayState.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Scenes\HowToPlayScene.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Scenes\TitleScene.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Text\Encoding.h">
+      <Filter>Text</Filter>
+    </ClInclude>
+    <ClInclude Include="Text\FontAsset.h">
+      <Filter>Text</Filter>
+    </ClInclude>
+    <ClInclude Include="Text\FreeTypeService.h">
+      <Filter>Text</Filter>
+    </ClInclude>
+    <ClInclude Include="Text\TextCommon.h">
+      <Filter>Text</Filter>
+    </ClInclude>
+    <ClInclude Include="Text\TextEngine.h">
+      <Filter>Text</Filter>
+    </ClInclude>
+    <ClInclude Include="World\SandforgeWorld.h">
+      <Filter>World</Filter>
+    </ClInclude>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="OpenGLWindow.h">
-      <Filter>OpenGL\Window</Filter>
-    </ClInclude>
-    <ClInclude Include="Encoding.h">
-      <Filter>utill</Filter>
-    </ClInclude>
-    <ClInclude Include="stb_image.h">
-      <Filter>utill</Filter>
-    </ClInclude>
-    <ClInclude Include="MainWindow.h">
-      <Filter>OpenGL\Window</Filter>
-    </ClInclude>
-    <ClInclude Include="VertexBuffer2D.h">
-      <Filter>OpenGL\VertexBuffer2D</Filter>
-    </ClInclude>
-    <ClInclude Include="Transform2D.h">
-      <Filter>OpenGL\Transform2D</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture2D.h">
-      <Filter>OpenGL\Texture2D</Filter>
-    </ClInclude>
-    <ClInclude Include="Shader.h">
-      <Filter>OpenGL\Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="Sprite.h">
-      <Filter>OpenGL\Sprite</Filter>
-    </ClInclude>
-    <ClInclude Include="ResourceManager.h">
-      <Filter>Management</Filter>
-    </ClInclude>
-    <ClInclude Include="Animation2D.h">
-      <Filter>OpenGL\Animation2D</Filter>
-    </ClInclude>
-    <ClInclude Include="GameContext.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="GameplayScene.h">
-      <Filter>Game\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="GameplayState.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="InputState.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="TitleScene.h">
-      <Filter>Game\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="GameScene.h">
-      <Filter>Game\Scene</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Filter Include="OpenGL">
-      <UniqueIdentifier>{026fcf31-3194-4132-86ca-c899c4abe57e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="OpenGL\Window">
-      <UniqueIdentifier>{aa5cb281-154d-4f6f-9c2d-00fa69efa950}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="utill">
-      <UniqueIdentifier>{8c9dbbd4-7c97-4388-a431-c162517d59e8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="glad">
-      <UniqueIdentifier>{4ef79659-2c0e-4117-b71c-24a830ec1b0c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="OpenGL\VertexBuffer2D">
-      <UniqueIdentifier>{aaf8fb9b-7be0-4430-87a1-b2b1ee340660}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="OpenGL\Transform2D">
-      <UniqueIdentifier>{4a354dfd-4c22-4066-becd-d0195baf1e48}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="OpenGL\Texture2D">
-      <UniqueIdentifier>{df82d0e9-7dda-4787-96c3-2ef96d695f42}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="OpenGL\Shader">
-      <UniqueIdentifier>{a3ceb2ac-838a-47bc-a425-8b53a6b48538}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="OpenGL\Sprite">
-      <UniqueIdentifier>{d4533348-9795-445e-a0fe-88f1849cba1c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Management">
-      <UniqueIdentifier>{99d1df4a-c511-42ce-8850-ae1e57c42dad}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="OpenGL\Animation2D">
-      <UniqueIdentifier>{9cd8ea82-f5fb-45fa-9cec-65a5b303587b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game">
-      <UniqueIdentifier>{25a5b071-f586-49c6-809b-f07a2d6130a0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game\Scene">
-      <UniqueIdentifier>{28d6f035-2355-4571-b484-f4438a22232f}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
 </Project>

@@ -85,6 +85,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)App;$(ProjectDir)Scenes;$(ProjectDir)Rendering;$(ProjectDir)Text;$(ProjectDir)Core;$(ProjectDir)Data;$(ProjectDir)World;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -100,6 +101,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)App;$(ProjectDir)Scenes;$(ProjectDir)Rendering;$(ProjectDir)Text;$(ProjectDir)Core;$(ProjectDir)Data;$(ProjectDir)World;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -115,12 +117,16 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)App;$(ProjectDir)Scenes;$(ProjectDir)Rendering;$(ProjectDir)Text;$(ProjectDir)Core;$(ProjectDir)Data;$(ProjectDir)World;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>glfw3.lib;glfw3dll.lib;glew32.lib;glew32s.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)Library\lib\freetype.dll" "$(OutDir)freetype.dll"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -133,53 +139,71 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)App;$(ProjectDir)Scenes;$(ProjectDir)Rendering;$(ProjectDir)Text;$(ProjectDir)Core;$(ProjectDir)Data;$(ProjectDir)World;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>glfw3.lib;glfw3dll.lib;glew32.lib;glew32s.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)Library\lib\freetype.dll" "$(OutDir)freetype.dll"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Animation2D.cpp" />
-    <ClCompile Include="Encoding.cpp" />
-    <ClCompile Include="GameplayScene.cpp" />
-    <ClCompile Include="GameplayState.cpp" />
-    <ClCompile Include="glad.cpp" />
-    <ClCompile Include="InputState.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="MainWindow.cpp" />
-    <ClCompile Include="OpenGLWindow.cpp" />
+    <ClCompile Include="App\main.cpp" />
+    <ClCompile Include="App\InputState.cpp" />
+    <ClCompile Include="App\MainWindow.cpp" />
+    <ClCompile Include="App\OpenGLWindow.cpp" />
+    <ClCompile Include="Data\SandforgeDatabase.cpp" />
+    <ClCompile Include="Rendering\Animation2D.cpp" />
+    <ClCompile Include="Rendering\glad.cpp" />
+    <ClCompile Include="Rendering\ResourceManager.cpp" />
+    <ClCompile Include="Rendering\Sprite.cpp" />
+    <ClCompile Include="Rendering\stb_image.cpp" />
+    <ClCompile Include="Rendering\Texture2D.cpp" />
+    <ClCompile Include="Rendering\VertexBuffer2D.cpp" />
+    <ClCompile Include="Scenes\GameplayScene.cpp" />
+    <ClCompile Include="Scenes\GameplayState.cpp" />
+    <ClCompile Include="Scenes\HowToPlayScene.cpp" />
+    <ClCompile Include="Scenes\TitleScene.cpp" />
+    <ClCompile Include="Text\Encoding.cpp" />
+    <ClCompile Include="Text\FontAsset.cpp" />
+    <ClCompile Include="Text\FreeTypeService.cpp" />
+    <ClCompile Include="Text\TextEngine.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="ResourceManager.cpp" />
-    <ClCompile Include="Sprite.cpp" />
-    <ClCompile Include="stb_image.cpp" />
-    <ClCompile Include="Texture2D.cpp" />
-    <ClCompile Include="TitleScene.cpp" />
-    <ClCompile Include="VertexBuffer2D.cpp" />
+    <ClCompile Include="World\SandforgeWorld.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Animation2D.h" />
-    <ClInclude Include="Encoding.h" />
-    <ClInclude Include="GameContext.h" />
-    <ClInclude Include="GameplayScene.h" />
-    <ClInclude Include="GameplayState.h" />
-    <ClInclude Include="GameScene.h" />
-    <ClInclude Include="InputState.h" />
-    <ClInclude Include="MainWindow.h" />
-    <ClInclude Include="OpenGLWindow.h" />
+    <ClInclude Include="App\GameContext.h" />
+    <ClInclude Include="App\InputState.h" />
+    <ClInclude Include="App\MainWindow.h" />
+    <ClInclude Include="App\OpenGLWindow.h" />
+    <ClInclude Include="Core\SandforgeTypes.h" />
+    <ClInclude Include="Data\SandforgeDatabase.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="ResourceManager.h" />
-    <ClInclude Include="Shader.h" />
-    <ClInclude Include="Sprite.h" />
-    <ClInclude Include="stb_image.h" />
-    <ClInclude Include="Texture2D.h" />
-    <ClInclude Include="TitleScene.h" />
-    <ClInclude Include="Transform2D.h" />
-    <ClInclude Include="VertexBuffer2D.h" />
+    <ClInclude Include="Rendering\Animation2D.h" />
+    <ClInclude Include="Rendering\ResourceManager.h" />
+    <ClInclude Include="Rendering\Shader.h" />
+    <ClInclude Include="Rendering\Sprite.h" />
+    <ClInclude Include="Rendering\stb_image.h" />
+    <ClInclude Include="Rendering\Texture2D.h" />
+    <ClInclude Include="Rendering\Transform2D.h" />
+    <ClInclude Include="Rendering\VertexBuffer2D.h" />
+    <ClInclude Include="Scenes\GameScene.h" />
+    <ClInclude Include="Scenes\GameplayScene.h" />
+    <ClInclude Include="Scenes\GameplayState.h" />
+    <ClInclude Include="Scenes\HowToPlayScene.h" />
+    <ClInclude Include="Scenes\TitleScene.h" />
+    <ClInclude Include="Text\Encoding.h" />
+    <ClInclude Include="Text\FontAsset.h" />
+    <ClInclude Include="Text\FreeTypeService.h" />
+    <ClInclude Include="Text\TextCommon.h" />
+    <ClInclude Include="Text\TextEngine.h" />
+    <ClInclude Include="World\SandforgeWorld.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

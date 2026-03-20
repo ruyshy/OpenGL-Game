@@ -11,6 +11,7 @@ class Shader;
 class VertexBufferObject2D;
 class Transform2D;
 class Texture2D;
+class Animation2D;
 
 class Sprite
 {
@@ -21,6 +22,7 @@ public:
 
 
 	void Draw();
+	void ApplyAnimation(Animation2D& animation, double deltaTime);
 
 	bool checkCollision(std::shared_ptr<Sprite> other, double offset = 0.0f);
 	bool hasMoved();
@@ -31,6 +33,8 @@ public:
 	bool GetVisible();
 
 	std::shared_ptr<Transform2D> GetTransform();
+	std::shared_ptr<Texture2D> GetTexture();
+	std::shared_ptr<VertexBufferObject2D> GetVertexBuffer();
 	glm::vec2 GetPosition();
 	glm::vec2 GetCenter();
 	glm::vec2 GetScale();
@@ -40,6 +44,7 @@ public:
 	bool GetFlipY();
 
 	glm::vec4 GetScreen();
+	glm::vec4 GetTintColor();
 
 	void SetTransform(Transform2D transform);
 	void SetVisible(bool visible);
@@ -51,6 +56,8 @@ public:
 	void SetAngle(float angle);
 	void SetFlipX(bool flip);
 	void SetFlipY(bool flip);
+	void SetTintColor(const glm::vec4& color);
+	void SetTintColor(float r, float g, float b, float a = 1.0f);
 
 private:
 	std::shared_ptr<VertexBufferObject2D> mpVertexBufferObject;
@@ -60,6 +67,7 @@ private:
 	float mZDepth = 0.0f;
 
 	bool mVisible = true;
+	glm::vec4 mTintColor = glm::vec4(1.0f);
 
 	std::shared_ptr<Shader> mpShader = nullptr;
 	std::shared_ptr<Texture2D> mpTextured = nullptr;
