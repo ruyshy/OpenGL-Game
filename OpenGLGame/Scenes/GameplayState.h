@@ -12,6 +12,9 @@
 class InputState;
 class Sprite;
 class Shader;
+class GameplayHudRenderer;
+class GameplaySelectionController;
+class GameplayBuildPreviewController;
 
 enum class SandforgeSelectionKind
 {
@@ -42,6 +45,15 @@ enum class SandforgeBuildPreviewKind
 class GameplayState
 {
 public:
+    struct HudCommandButton
+    {
+        vec2 position{};
+        vec2 size{};
+        int hotkey = 0;
+        string label;
+        bool enabled = false;
+    };
+
     void reset();
     void setViewportSize(int width, int height);
     void update(const InputState& input, double deltaTime, const vec2& cursorScreenPosition, const vec2& cursorWorldPosition);
@@ -62,14 +74,9 @@ public:
     bool isMatchOver() const;
 
 private:
-    struct HudCommandButton
-    {
-        vec2 position{};
-        vec2 size{};
-        int hotkey = 0;
-        string label;
-        bool enabled = false;
-    };
+    friend class GameplayHudRenderer;
+    friend class GameplaySelectionController;
+    friend class GameplayBuildPreviewController;
 
     void initializeRenderer();
     void initializeStaticArt();

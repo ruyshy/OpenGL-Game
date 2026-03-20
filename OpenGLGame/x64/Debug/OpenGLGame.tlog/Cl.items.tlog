@@ -11,6 +11,9 @@ C:\Project\OpenGLGame\OpenGLGame\Rendering\stb_image.cpp;C:\Project\OpenGLGame\O
 C:\Project\OpenGLGame\OpenGLGame\Rendering\Texture2D.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\Texture2D.obj
 C:\Project\OpenGLGame\OpenGLGame\Rendering\VertexBuffer2D.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\VertexBuffer2D.obj
 C:\Project\OpenGLGame\OpenGLGame\Scenes\GameplayScene.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\GameplayScene.obj
+C:\Project\OpenGLGame\OpenGLGame\Scenes\GameplayBuildPreviewController.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\GameplayBuildPreviewController.obj
+C:\Project\OpenGLGame\OpenGLGame\Scenes\GameplayHudRenderer.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\GameplayHudRenderer.obj
+C:\Project\OpenGLGame\OpenGLGame\Scenes\GameplaySelectionController.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\GameplaySelectionController.obj
 C:\Project\OpenGLGame\OpenGLGame\Scenes\GameplayState.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\GameplayState.obj
 C:\Project\OpenGLGame\OpenGLGame\Scenes\HowToPlayScene.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\HowToPlayScene.obj
 C:\Project\OpenGLGame\OpenGLGame\Scenes\TitleScene.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\TitleScene.obj

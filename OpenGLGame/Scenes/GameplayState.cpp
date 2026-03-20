@@ -1,6 +1,9 @@
 #include "pch.h"
 #include "GameplayState.h"
 
+#include "GameplayBuildPreviewController.h"
+#include "GameplayHudRenderer.h"
+#include "GameplaySelectionController.h"
 #include "Animation2D.h"
 #include "InputState.h"
 #include "Shader.h"
@@ -9,6 +12,9 @@
 namespace
 {
     constexpr float kWorldWidth = 2560.0f;
+    GameplayHudRenderer gHudRenderer;
+    GameplaySelectionController gSelectionController;
+    GameplayBuildPreviewController gBuildPreviewController;
 
     const string kSpriteVertexShader = R"(#version 330 core
 layout (location = 0) in vec2 aPos;
@@ -808,326 +814,7 @@ void GameplayState::renderEffects()
 
 void GameplayState::renderHudArt()
 {
-    const float sx = _uiViewportSize.x / 1280.0f;
-    const float sy = _uiViewportSize.y / 720.0f;
-    const float uiScale = (std::min)(sx, sy);
-    const auto scalePos = [&](float x, float y) { return vec2(x * sx, y * sy); };
-    const auto scaleSize = [&](float x, float y) { return vec2(x * sx, y * sy); };
-    const auto uniformSize = [&](float x, float y) { return vec2(x * uiScale, y * uiScale); };
-
-    if (_topResourcePanel != nullptr)
-    {
-        _topResourcePanel->SetDepth(0.145f);
-        _topResourcePanel->SetPosition(scalePos(900.0f, 646.0f));
-        _topResourcePanel->SetScale(scaleSize(356.0f, 50.0f));
-        _topResourcePanel->Draw();
-    }
-    if (_hudPanel != nullptr)
-    {
-        _hudPanel->SetDepth(0.15f);
-        _hudPanel->SetPosition(vec2(0.0f, 0.0f));
-        _hudPanel->SetScale(scaleSize(1280.0f, 156.0f));
-        _hudPanel->Draw();
-    }
-    if (_productionPanel != nullptr)
-    {
-        _productionPanel->SetDepth(0.15f);
-        _productionPanel->SetPosition(scalePos(914.0f, 12.0f));
-        _productionPanel->SetScale(scaleSize(340.0f, 132.0f));
-        _productionPanel->Draw();
-    }
-    if (_rightSelectionPanel != nullptr)
-    {
-        _rightSelectionPanel->SetDepth(0.15f);
-        _rightSelectionPanel->SetPosition(scalePos(24.0f, 14.0f));
-        _rightSelectionPanel->SetScale(scaleSize(250.0f, 126.0f));
-        _rightSelectionPanel->Draw();
-    }
-    if (_infoPanel != nullptr)
-    {
-        _infoPanel->SetDepth(0.15f);
-        _infoPanel->SetPosition(scalePos(286.0f, 10.0f));
-        _infoPanel->SetScale(scaleSize(208.0f, 132.0f));
-        _infoPanel->Draw();
-    }
-    if (_minimapPanel != nullptr)
-    {
-        _minimapPanel->SetDepth(0.15f);
-        _minimapPanel->SetPosition(scalePos(506.0f, 12.0f));
-        _minimapPanel->SetScale(scaleSize(256.0f, 132.0f));
-        _minimapPanel->Draw();
-    }
-
-    for (const auto& frame : _commandSlotBackgrounds)
-    {
-        if (frame == nullptr) continue;
-        frame->SetDepth(0.155f);
-        frame->Draw();
-    }
-
-    const auto& nodes = _world.getNodes();
-    for (size_t index = 0; index < _nodeStatusFrames.size() && index < nodes.size(); ++index)
-    {
-        if (_nodeStatusFrames[index] == nullptr) continue;
-        _nodeStatusFrames[index]->SetPosition(scalePos(300.0f + (static_cast<float>(index) * 58.0f), 88.0f));
-        _nodeStatusFrames[index]->SetScale(scaleSize(50.0f, 38.0f));
-        _nodeStatusFrames[index]->SetDepth(0.155f);
-        _nodeStatusFrames[index]->Draw();
-    }
-
-    if (_selectionKind == SandforgeSelectionKind::Unit)
-    {
-        const SandforgeUnit* unit = getSelectedUnit();
-        if (unit != nullptr)
-        {
-            switch (unit->unitType)
-            {
-            case SandforgeUnitType::Worker: _activePortrait = _portraitSprites["worker"]; break;
-            case SandforgeUnitType::Soldier: _activePortrait = _portraitSprites["soldier"]; break;
-            case SandforgeUnitType::Defender: _activePortrait = _portraitSprites["defender"]; break;
-            default: _activePortrait = _portraitSprites["ranger_mech"]; break;
-            }
-        }
-    }
-    else if (_selectionKind == SandforgeSelectionKind::HQ)
-    {
-        _activePortrait = _portraitSprites["hq"];
-    }
-    else if (_selectionKind == SandforgeSelectionKind::Barracks)
-    {
-        _activePortrait = _portraitSprites["barracks"];
-    }
-    else if (_selectionKind == SandforgeSelectionKind::Factory)
-    {
-        _activePortrait = _portraitSprites["ranger_mech"];
-    }
-    else if (_selectionKind == SandforgeSelectionKind::NodeHub)
-    {
-        _activePortrait = _portraitSprites["worker"];
-    }
-    else if (_selectionKind == SandforgeSelectionKind::DefenseTower)
-    {
-        _activePortrait = _portraitSprites["defender"];
-    }
-    else if (_selectionKind == SandforgeSelectionKind::Node)
-    {
-        const SandforgeResourceNode& node = _world.getNodes()[_selectedNodeIndex];
-        _activePortrait = node.resourceType == SandforgeResourceType::Metal ? _portraitSprites["worker"] : _portraitSprites["ranger_mech"];
-    }
-
-    if (_activePortrait != nullptr)
-    {
-        _activePortrait->SetPosition(scalePos(42.0f, 24.0f));
-        _activePortrait->SetScale(uniformSize(106.0f, 106.0f));
-        _activePortrait->SetDepth(0.16f);
-        _activePortrait->Draw();
-    }
-
-    const vector<HudCommandButton> commandButtons = buildHudCommandButtons();
-    vector<shared_ptr<Sprite>> commandIcons;
-    if (_selectionKind == SandforgeSelectionKind::HQ)
-    {
-        commandIcons = { _queuePreviewIcons[SandforgeUnitType::Worker], _uiDecorSprites["barracks"], _uiDecorSprites["factory"] };
-    }
-    else if (_selectionKind == SandforgeSelectionKind::Barracks)
-    {
-        commandIcons = {
-            _queuePreviewIcons[SandforgeUnitType::Soldier],
-            _queuePreviewIcons[SandforgeUnitType::Defender],
-            _queuePreviewIcons[SandforgeUnitType::SiegeUnit]
-        };
-    }
-    else if (_selectionKind == SandforgeSelectionKind::Factory)
-    {
-        commandIcons = {
-            _queuePreviewIcons[SandforgeUnitType::RangerMech],
-            _queuePreviewIcons[SandforgeUnitType::SiegeUnit]
-        };
-    }
-    else if (_selectionKind == SandforgeSelectionKind::Node)
-    {
-        commandIcons = {
-            _uiDecorSprites["nodehub"],
-            _uiDecorSprites["tower"]
-        };
-    }
-
-    for (size_t index = 0; index < _commandSlotBackgrounds.size(); ++index)
-    {
-        if (_commandSlotBackgrounds[index] == nullptr) continue;
-        const bool enabled = index < commandButtons.size() ? commandButtons[index].enabled : false;
-        const bool hovered = index < commandButtons.size() && commandButtons[index].hotkey == _hoveredCommandHotkey;
-        _commandSlotBackgrounds[index]->SetDepth(hovered ? 0.162f : (enabled ? 0.158f : 0.152f));
-        _commandSlotBackgrounds[index]->Draw();
-    }
-
-    for (size_t index = 0; index < commandIcons.size() && index < _commandSlotBackgrounds.size() && index < commandButtons.size(); ++index)
-    {
-        if (commandIcons[index] == nullptr) continue;
-        commandIcons[index]->SetPosition(commandButtons[index].position + uniformSize(9.0f, 9.0f));
-        commandIcons[index]->SetScale(uniformSize(40.0f, 40.0f));
-        commandIcons[index]->SetDepth(commandButtons[index].enabled ? 0.165f : 0.153f);
-        commandIcons[index]->Draw();
-    }
-
-    size_t minimapIndex = 0;
-    const vec2 minimapDisplayOrigin = scalePos(528.0f, 28.0f);
-    const vec2 minimapSize = scaleSize(212.0f, 96.0f);
-    auto drawBlip = [&](const SandforgeVec2& worldPosition, const vec2& size)
-    {
-        if (minimapIndex >= _minimapBlips.size() || _minimapBlips[minimapIndex] == nullptr)
-        {
-            return;
-        }
-
-        const float x = minimapDisplayOrigin.x + ((worldPosition.x / kWorldWidth) * minimapSize.x);
-        const float y = minimapDisplayOrigin.y + ((worldPosition.y / 720.0f) * minimapSize.y);
-        _minimapBlips[minimapIndex]->SetPosition(vec2(x, y));
-        _minimapBlips[minimapIndex]->SetScale(size);
-        _minimapBlips[minimapIndex]->SetDepth(0.165f);
-        _minimapBlips[minimapIndex]->Draw();
-        ++minimapIndex;
-    };
-
-    const SandforgeBuilding* friendlyHQ = _world.findPrimaryBuilding(1, SandforgeBuildingType::HQ);
-    const SandforgeBuilding* enemyHQ = _world.findPrimaryBuilding(2, SandforgeBuildingType::HQ);
-    if (friendlyHQ != nullptr) drawBlip(friendlyHQ->position, uniformSize(20.0f, 20.0f));
-    if (enemyHQ != nullptr) drawBlip(enemyHQ->position, uniformSize(22.0f, 22.0f));
-    for (const SandforgeResourceNode& node : nodes)
-    {
-        drawBlip(node.position, uniformSize(16.0f, 16.0f));
-    }
-
-    float healthRatio = 1.0f;
-    if (_selectionKind == SandforgeSelectionKind::Unit)
-    {
-        const SandforgeUnit* unit = getSelectedUnit();
-        if (unit != nullptr && unit->maxHp > 0.0f)
-        {
-            healthRatio = unit->hp / unit->maxHp;
-        }
-    }
-    else if (_selectionKind == SandforgeSelectionKind::HQ)
-    {
-        const SandforgeBuilding* building = _world.findPrimaryBuilding(1, SandforgeBuildingType::HQ);
-        if (building != nullptr && building->maxHp > 0.0f) healthRatio = building->hp / building->maxHp;
-    }
-    else if (_selectionKind == SandforgeSelectionKind::Barracks)
-    {
-        const SandforgeBuilding* building = getSelectedBuilding();
-        if (building != nullptr && building->maxHp > 0.0f) healthRatio = building->hp / building->maxHp;
-    }
-    else if (_selectionKind == SandforgeSelectionKind::Factory)
-    {
-        const SandforgeBuilding* building = getSelectedBuilding();
-        if (building != nullptr && building->maxHp > 0.0f) healthRatio = building->hp / building->maxHp;
-    }
-
-    if (_healthBarFrame != nullptr)
-    {
-        _healthBarFrame->SetTintColor(0.18f, 0.05f, 0.05f, 1.0f);
-        _healthBarFrame->SetPosition(scalePos(154.0f, 38.0f));
-        _healthBarFrame->SetScale(scaleSize(96.0f, 10.0f));
-        _healthBarFrame->SetDepth(0.16f);
-        _healthBarFrame->Draw();
-    }
-    if (_healthBarFill != nullptr)
-    {
-        _healthBarFill->SetTintColor(0.88f, 0.14f, 0.14f, 1.0f);
-        _healthBarFill->SetPosition(scalePos(154.0f, 38.0f));
-        _healthBarFill->SetScale(scaleSize(96.0f * glm::clamp(healthRatio, 0.0f, 1.0f), 10.0f));
-        _healthBarFill->SetDepth(0.165f);
-        _healthBarFill->Draw();
-    }
-
-    const SandforgeBuilding* selectedBuilding = nullptr;
-    if (_selectionKind == SandforgeSelectionKind::HQ)
-    {
-        selectedBuilding = _world.findPrimaryBuilding(1, SandforgeBuildingType::HQ);
-    }
-    else if (_selectionKind == SandforgeSelectionKind::Barracks)
-    {
-        selectedBuilding = getSelectedBuilding();
-    }
-    else if (_selectionKind == SandforgeSelectionKind::Factory)
-    {
-        selectedBuilding = getSelectedBuilding();
-    }
-
-    if (selectedBuilding != nullptr)
-    {
-        const float startX = 304.0f * sx;
-        const float startY = 32.0f * sy;
-        const float slotSpacing = 30.0f * sx;
-        const float frameWidth = 22.0f * sx;
-        const float frameHeight = 6.0f * sy;
-
-        for (size_t index = 0; index < selectedBuilding->productionQueue.size(); ++index)
-        {
-            const auto iconIterator = _queuePreviewIcons.find(selectedBuilding->productionQueue[index].unitType);
-            if (iconIterator == _queuePreviewIcons.end() || iconIterator->second == nullptr)
-            {
-                continue;
-            }
-
-            iconIterator->second->SetPosition(vec2(startX + (static_cast<float>(index) * slotSpacing), startY));
-            iconIterator->second->SetScale(uniformSize(22.0f, 22.0f));
-            iconIterator->second->SetDepth(0.17f);
-            iconIterator->second->Draw();
-
-            if (_queueProgressFrame != nullptr)
-            {
-                _queueProgressFrame->SetPosition(startX + (static_cast<float>(index) * slotSpacing), startY - 6.0f);
-                _queueProgressFrame->SetScale(vec2(frameWidth, frameHeight));
-                _queueProgressFrame->SetDepth(0.165f);
-                _queueProgressFrame->Draw();
-            }
-
-            if (_queueProgressBar != nullptr)
-            {
-                float progress = 0.15f;
-                if (index == 0 && selectedBuilding->productionQueue[index].totalTime > 0.0f)
-                {
-                    progress = 1.0f - (selectedBuilding->productionQueue[index].remainingTime / selectedBuilding->productionQueue[index].totalTime);
-                }
-
-                progress = glm::clamp(progress, 0.0f, 1.0f);
-                _queueProgressBar->SetPosition(startX + (static_cast<float>(index) * slotSpacing), startY - 6.0f);
-                _queueProgressBar->SetScale(vec2(frameWidth * progress, frameHeight));
-                _queueProgressBar->SetDepth(0.17f);
-                _queueProgressBar->Draw();
-            }
-        }
-    }
-
-    for (size_t index = 0; index < nodes.size() && index < 2; ++index)
-    {
-        shared_ptr<Sprite> nodeIcon = nodes[index].resourceType == SandforgeResourceType::Metal
-            ? _uiDecorSprites["metal_node"]
-            : _uiDecorSprites["energy_node"];
-        if (nodeIcon == nullptr) continue;
-        nodeIcon->SetPosition(scalePos(308.0f + (static_cast<float>(index) * 58.0f), 90.0f));
-        nodeIcon->SetScale(uniformSize(26.0f, 26.0f));
-        nodeIcon->SetDepth(0.162f);
-        nodeIcon->Draw();
-
-        shared_ptr<Sprite> ownerRing = nodes[index].ownerId == 2 ? _enemySelectionRing : _friendlySelectionRing;
-        if (ownerRing != nullptr && nodes[index].ownerId != 0)
-        {
-            ownerRing->SetPosition(scalePos(304.0f + (static_cast<float>(index) * 58.0f), 86.0f));
-            ownerRing->SetScale(uniformSize(34.0f, 34.0f));
-            ownerRing->SetDepth(0.158f);
-            ownerRing->Draw();
-        }
-    }
-
-    if (_tooltipPanel != nullptr && hasCommandTooltip())
-    {
-        _tooltipPanel->SetPosition(getCommandTooltipPosition());
-        _tooltipPanel->SetScale(scaleSize(270.0f, 112.0f));
-        _tooltipPanel->SetDepth(0.175f);
-        _tooltipPanel->Draw();
-    }
+    gHudRenderer.renderHudArt(*this);
 }
 
 void GameplayState::renderFloatingHealthBars()
@@ -1190,461 +877,77 @@ void GameplayState::renderFloatingHealthBars()
 
 vector<GameplayState::HudCommandButton> GameplayState::buildHudCommandButtons() const
 {
-    vector<HudCommandButton> buttons;
-    const float sx = _uiViewportSize.x / 1280.0f;
-    const float sy = _uiViewportSize.y / 720.0f;
-    const vec2 origin(940.0f * sx, 28.0f * sy);
-    const vec2 size(64.0f * sx, 50.0f * sy);
-
-    auto pushButton = [&](int hotkey, const string& label, bool enabled = true)
-    {
-        const int index = static_cast<int>(buttons.size());
-        const int column = index % 2;
-        const int row = index / 2;
-        buttons.push_back({ origin + vec2(static_cast<float>(column) * (78.0f * sx), static_cast<float>(row) * (38.0f * sy)), size, hotkey, label, enabled });
-    };
-
-    if (_selectionKind == SandforgeSelectionKind::HQ)
-    {
-        pushButton(GLFW_KEY_1, "Worker");
-        pushButton(GLFW_KEY_B, "Barracks");
-        pushButton(GLFW_KEY_F, "Factory");
-    }
-    else if (_selectionKind == SandforgeSelectionKind::Barracks)
-    {
-        pushButton(GLFW_KEY_2, "Soldier");
-        pushButton(GLFW_KEY_3, "Defender");
-    }
-    else if (_selectionKind == SandforgeSelectionKind::Factory)
-    {
-        pushButton(GLFW_KEY_6, "Mech");
-        pushButton(GLFW_KEY_7, "Siege");
-    }
-    else if (_selectionKind == SandforgeSelectionKind::Node)
-    {
-        const bool owned = _selectedNodeIndex >= 0 &&
-            _selectedNodeIndex < static_cast<int>(_world.getNodes().size()) &&
-            _world.getNodes()[_selectedNodeIndex].ownerId == 1;
-        pushButton(GLFW_KEY_4, "NodeHub", owned);
-        pushButton(GLFW_KEY_8, "Tower", owned);
-    }
-
-    return buttons;
+    return gHudRenderer.buildHudCommandButtons(*this);
 }
 
 void GameplayState::updateHoveredHudCommand(const vec2& cursorScreenPosition)
 {
-    _hoveredCommandHotkey = 0;
-    const vector<HudCommandButton> buttons = buildHudCommandButtons();
-    for (const HudCommandButton& button : buttons)
-    {
-        if (!button.enabled)
-        {
-            continue;
-        }
-
-        if (cursorScreenPosition.x >= button.position.x && cursorScreenPosition.x <= button.position.x + button.size.x &&
-            cursorScreenPosition.y >= button.position.y && cursorScreenPosition.y <= button.position.y + button.size.y)
-        {
-            _hoveredCommandHotkey = button.hotkey;
-            return;
-        }
-    }
+    gHudRenderer.updateHoveredHudCommand(*this, cursorScreenPosition);
 }
 
 bool GameplayState::handleHudClick(const vec2& cursorScreenPosition, const vec2& cursorWorldPosition)
 {
-    const vector<HudCommandButton> buttons = buildHudCommandButtons();
-    for (const HudCommandButton& button : buttons)
-    {
-        if (!button.enabled)
-        {
-            continue;
-        }
-
-        if (cursorScreenPosition.x >= button.position.x && cursorScreenPosition.x <= button.position.x + button.size.x &&
-            cursorScreenPosition.y >= button.position.y && cursorScreenPosition.y <= button.position.y + button.size.y)
-        {
-            return activateHudCommand(button.hotkey, cursorWorldPosition);
-        }
-    }
-
-    return false;
+    return gHudRenderer.handleHudClick(*this, cursorScreenPosition, cursorWorldPosition);
 }
 
 bool GameplayState::activateHudCommand(int hotkey, const vec2& cursorWorldPosition)
 {
-    if (hotkey == GLFW_KEY_1)
-    {
-        if (_selectionKind == SandforgeSelectionKind::HQ)
-        {
-            return _world.queueProduction(1, SandforgeBuildingType::HQ, SandforgeUnitType::Worker);
-        }
-        _statusText = "Select Headquarters to train Workers.";
-        return false;
-    }
-    if (hotkey == GLFW_KEY_2)
-    {
-        if (_selectionKind == SandforgeSelectionKind::Barracks && _selectedBuildingId != 0)
-        {
-            return _world.queueProduction(1, _selectedBuildingId, SandforgeUnitType::Soldier);
-        }
-        _statusText = "Select a Barracks to train Soldiers.";
-        return false;
-    }
-    if (hotkey == GLFW_KEY_3)
-    {
-        if (_selectionKind == SandforgeSelectionKind::Barracks && _selectedBuildingId != 0)
-        {
-            return _world.queueProduction(1, _selectedBuildingId, SandforgeUnitType::Defender);
-        }
-        _statusText = "Select a Barracks to train Defenders.";
-        return false;
-    }
-    if (hotkey == GLFW_KEY_4 && _selectionKind == SandforgeSelectionKind::Node)
-    {
-        beginBuildPreview(SandforgeBuildPreviewKind::NodeHub, cursorWorldPosition);
-        return true;
-    }
-    if (hotkey == GLFW_KEY_B && _selectionKind == SandforgeSelectionKind::HQ)
-    {
-        beginBuildPreview(SandforgeBuildPreviewKind::Barracks, cursorWorldPosition);
-        return true;
-    }
-    if (hotkey == GLFW_KEY_F && _selectionKind == SandforgeSelectionKind::HQ)
-    {
-        beginBuildPreview(SandforgeBuildPreviewKind::Factory, cursorWorldPosition);
-        return true;
-    }
-    if (hotkey == GLFW_KEY_6)
-    {
-        if (_selectionKind == SandforgeSelectionKind::Factory && _selectedBuildingId != 0)
-        {
-            return _world.queueProduction(1, _selectedBuildingId, SandforgeUnitType::RangerMech);
-        }
-        _statusText = "Select a Factory to train Mechs.";
-        return false;
-    }
-    if (hotkey == GLFW_KEY_7)
-    {
-        if (_selectionKind == SandforgeSelectionKind::Factory && _selectedBuildingId != 0)
-        {
-            return _world.queueProduction(1, _selectedBuildingId, SandforgeUnitType::SiegeUnit);
-        }
-        _statusText = "Select a Factory to train Siege Units.";
-        return false;
-    }
-    if (hotkey == GLFW_KEY_8 && _selectionKind == SandforgeSelectionKind::Node)
-    {
-        beginBuildPreview(SandforgeBuildPreviewKind::DefenseTower, cursorWorldPosition);
-        return true;
-    }
-
-    return false;
+    return gHudRenderer.activateHudCommand(*this, hotkey, cursorWorldPosition);
 }
 
 void GameplayState::setSelection(SandforgeSelectionKind kind, int index)
 {
-    _selectionKind = kind;
-    if (kind != SandforgeSelectionKind::Unit)
-    {
-        _selectedUnitId = 0;
-    }
-    if (kind != SandforgeSelectionKind::Barracks && kind != SandforgeSelectionKind::Factory)
-    {
-        _selectedBuildingId = 0;
-    }
-    if (kind == SandforgeSelectionKind::Node)
-    {
-        _selectedNodeIndex = (std::max)(0, (std::min)(index, static_cast<int>(_world.getNodes().size()) - 1));
-    }
+    gSelectionController.setSelection(*this, kind, index);
 }
 
 const SandforgeBuilding* GameplayState::getSelectedBuilding() const
 {
-    if (_selectedBuildingId == 0)
-    {
-        return nullptr;
-    }
-
-    const SandforgeBuilding* building = _world.findBuildingById(_selectedBuildingId);
-    if (building == nullptr || !building->alive || building->ownerId != 1)
-    {
-        return nullptr;
-    }
-
-    if (_selectionKind == SandforgeSelectionKind::Barracks && building->buildingType != SandforgeBuildingType::Barracks)
-    {
-        return nullptr;
-    }
-    if (_selectionKind == SandforgeSelectionKind::Factory && building->buildingType != SandforgeBuildingType::Factory)
-    {
-        return nullptr;
-    }
-
-    return building;
+    return gSelectionController.getSelectedBuilding(*this);
 }
 
 void GameplayState::setBuildingSelection(SandforgeSelectionKind kind, SandforgeEntityId buildingId)
 {
-    _selectionKind = kind;
-    _selectedUnitId = 0;
-    _selectedBuildingId = buildingId;
+    gSelectionController.setBuildingSelection(*this, kind, buildingId);
 }
 
 void GameplayState::beginBuildPreview(SandforgeBuildPreviewKind kind, const vec2& cursorWorldPosition)
 {
-    _buildPreviewKind = kind;
-    _buildPreviewNodeIndex = _selectionKind == SandforgeSelectionKind::Node ? _selectedNodeIndex : -1;
-
-    const SandforgeBuildingType buildingType = getPreviewBuildingType();
-    const auto& definition = SandforgeDatabase::getBuilding(buildingType);
-    if (_buildPreviewSprite != nullptr)
-    {
-        _buildPreviewSprite->SetScale(definition.visuals.spriteSize);
-        _buildPreviewSprite = createStaticSprite(definition.visuals.imagePath, cursorWorldPosition - (definition.visuals.spriteSize * 0.5f), definition.visuals.spriteSize);
-    }
-
-    _statusText = "Build preview active. Left click to place, right click to cancel.";
+    gBuildPreviewController.beginBuildPreview(*this, kind, cursorWorldPosition);
 }
 
 void GameplayState::cancelBuildPreview()
 {
-    _buildPreviewKind = SandforgeBuildPreviewKind::None;
-    _buildPreviewNodeIndex = -1;
-    _statusText = "Build preview canceled.";
+    gBuildPreviewController.cancelBuildPreview(*this);
 }
 
 bool GameplayState::tryPlacePreviewAt(const vec2& cursorWorldPosition)
 {
-    if (_buildPreviewKind == SandforgeBuildPreviewKind::None)
-    {
-        return false;
-    }
-
-    const SandforgeVec2 position = sandforgeFromGlm(cursorWorldPosition);
-    bool placed = false;
-
-    if (_buildPreviewKind == SandforgeBuildPreviewKind::Barracks)
-    {
-        placed = _world.buildBarracksAt(1, position);
-        if (placed)
-        {
-            for (auto it = _world.getBuildings().rbegin(); it != _world.getBuildings().rend(); ++it)
-            {
-                if (it->alive && it->ownerId == 1 && it->buildingType == SandforgeBuildingType::Barracks)
-                {
-                    setBuildingSelection(SandforgeSelectionKind::Barracks, it->id);
-                    break;
-                }
-            }
-        }
-    }
-    else if (_buildPreviewKind == SandforgeBuildPreviewKind::Factory)
-    {
-        placed = _world.buildFactoryAt(1, position);
-        if (placed)
-        {
-            for (auto it = _world.getBuildings().rbegin(); it != _world.getBuildings().rend(); ++it)
-            {
-                if (it->alive && it->ownerId == 1 && it->buildingType == SandforgeBuildingType::Factory)
-                {
-                    setBuildingSelection(SandforgeSelectionKind::Factory, it->id);
-                    break;
-                }
-            }
-        }
-    }
-    else if (_buildPreviewKind == SandforgeBuildPreviewKind::NodeHub && _buildPreviewNodeIndex >= 0)
-    {
-        placed = _world.buildNodeHubAt(1, static_cast<size_t>(_buildPreviewNodeIndex), position);
-        if (placed) setSelection(SandforgeSelectionKind::NodeHub);
-    }
-    else if (_buildPreviewKind == SandforgeBuildPreviewKind::DefenseTower && _buildPreviewNodeIndex >= 0)
-    {
-        placed = _world.buildDefenseTowerAt(1, static_cast<size_t>(_buildPreviewNodeIndex), position);
-        if (placed) setSelection(SandforgeSelectionKind::DefenseTower);
-    }
-
-    if (placed)
-    {
-        _buildPreviewKind = SandforgeBuildPreviewKind::None;
-        _buildPreviewNodeIndex = -1;
-    }
-
-    return placed;
+    return gBuildPreviewController.tryPlacePreviewAt(*this, cursorWorldPosition);
 }
 
 bool GameplayState::isBuildPreviewValid(const vec2& cursorWorldPosition) const
 {
-    const SandforgeVec2 position = sandforgeFromGlm(cursorWorldPosition);
-
-    if (_buildPreviewKind == SandforgeBuildPreviewKind::Barracks)
-    {
-        return _world.canPlaceBarracks(1, position);
-    }
-    if (_buildPreviewKind == SandforgeBuildPreviewKind::Factory)
-    {
-        return _world.canPlaceFactory(1, position);
-    }
-    if (_buildPreviewKind == SandforgeBuildPreviewKind::NodeHub && _buildPreviewNodeIndex >= 0)
-    {
-        return _world.canPlaceNodeHub(1, static_cast<size_t>(_buildPreviewNodeIndex), position);
-    }
-    if (_buildPreviewKind == SandforgeBuildPreviewKind::DefenseTower && _buildPreviewNodeIndex >= 0)
-    {
-        return _world.canPlaceDefenseTower(1, static_cast<size_t>(_buildPreviewNodeIndex), position);
-    }
-
-    return false;
+    return gBuildPreviewController.isBuildPreviewValid(*this, cursorWorldPosition);
 }
 
 SandforgeBuildingType GameplayState::getPreviewBuildingType() const
 {
-    if (_buildPreviewKind == SandforgeBuildPreviewKind::Barracks) return SandforgeBuildingType::Barracks;
-    if (_buildPreviewKind == SandforgeBuildPreviewKind::NodeHub) return SandforgeBuildingType::NodeHub;
-    if (_buildPreviewKind == SandforgeBuildPreviewKind::DefenseTower) return SandforgeBuildingType::DefenseTower;
-    return SandforgeBuildingType::Factory;
+    return gBuildPreviewController.getPreviewBuildingType(*this);
 }
 
 const SandforgeUnit* GameplayState::getSelectedUnit() const
 {
-    return _world.findUnitById(_selectedUnitId);
+    return gSelectionController.getSelectedUnit(*this);
 }
 
 string GameplayState::buildSelectionLabel() const
 {
-    if (_selectionKind == SandforgeSelectionKind::Unit)
-    {
-        const SandforgeUnit* unit = getSelectedUnit();
-        if (unit != nullptr)
-        {
-            return SandforgeDatabase::getUnit(unit->unitType).displayName;
-        }
-    }
-    if (_selectionKind == SandforgeSelectionKind::HQ) return "Headquarters";
-    if (_selectionKind == SandforgeSelectionKind::Barracks)
-    {
-        if (const SandforgeBuilding* building = getSelectedBuilding())
-        {
-            return "Barracks #" + to_string(building->id);
-        }
-        return "Barracks";
-    }
-    if (_selectionKind == SandforgeSelectionKind::Factory)
-    {
-        if (const SandforgeBuilding* building = getSelectedBuilding())
-        {
-            return "Factory #" + to_string(building->id);
-        }
-        return "Factory";
-    }
-    if (_selectionKind == SandforgeSelectionKind::NodeHub) return "Node Hub";
-    if (_selectionKind == SandforgeSelectionKind::DefenseTower) return "Defense Tower";
-    if (_selectionKind == SandforgeSelectionKind::Node && _selectedNodeIndex < static_cast<int>(_world.getNodes().size()))
-    {
-        const SandforgeResourceNode& node = _world.getNodes()[_selectedNodeIndex];
-        const SandforgeNodeDefinition& nodeDef = SandforgeDatabase::getNode(node.resourceType);
-        return nodeDef.displayName;
-    }
-    return "None";
+    return gSelectionController.buildSelectionLabel(*this);
 }
 
 vector<string> GameplayState::buildSelectionDetails() const
 {
-    vector<string> details;
-    if (_selectionKind == SandforgeSelectionKind::Unit)
-    {
-        const SandforgeUnit* unit = getSelectedUnit();
-        if (unit != nullptr)
-        {
-            const auto& definition = SandforgeDatabase::getUnit(unit->unitType);
-            details.push_back("Selected  " + definition.displayName + " HP " + to_string(static_cast<int>(unit->hp)) + "/" + to_string(static_cast<int>(unit->maxHp)));
-            if (unit->unitType == SandforgeUnitType::Worker)
-            {
-                details.push_back("Worker  Auto gathers after W/E assignment");
-                details.push_back("Hotkeys  W = Metal   E = Energy");
-                if (unit->captureNodeId != 0)
-                {
-                    for (const SandforgeResourceNode& node : _world.getNodes())
-                    {
-                        if (node.id == unit->captureNodeId)
-                        {
-                            details.push_back("Job  " + SandforgeDatabase::getNode(node.resourceType).displayName);
-                            break;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                details.push_back("Command  Right click to move");
-            }
-        }
-    }
-    else if (_selectionKind == SandforgeSelectionKind::HQ)
-    {
-        const SandforgeBuilding* hq = _world.findPrimaryBuilding(1, SandforgeBuildingType::HQ);
-        if (hq != nullptr)
-        {
-            details.push_back("Selected  HQ HP " + to_string(static_cast<int>(hq->hp)) + "/" + to_string(static_cast<int>(hq->maxHp)));
-            details.push_back("Actions  [1] Worker  [B] Barracks  [F] Factory");
-        }
-    }
-    else if (_selectionKind == SandforgeSelectionKind::Barracks)
-    {
-        const SandforgeBuilding* barracks = getSelectedBuilding();
-        if (barracks != nullptr)
-        {
-            details.push_back("Selected  Barracks #" + to_string(barracks->id) + " HP " + to_string(static_cast<int>(barracks->hp)) + "/" + to_string(static_cast<int>(barracks->maxHp)));
-            details.push_back("Actions  [2] Soldier  [3] Defender");
-        }
-    }
-    else if (_selectionKind == SandforgeSelectionKind::Factory)
-    {
-        const SandforgeBuilding* factory = getSelectedBuilding();
-        if (factory != nullptr)
-        {
-            details.push_back("Selected  Factory HP " + to_string(static_cast<int>(factory->hp)) + "/" + to_string(static_cast<int>(factory->maxHp)));
-            details.push_back("Actions  [6] Mech  [7] Siege");
-        }
-    }
-    else if (_selectionKind == SandforgeSelectionKind::NodeHub)
-    {
-        for (const SandforgeBuilding& building : _world.getBuildings())
-        {
-            if (building.alive && building.ownerId == 1 && building.buildingType == SandforgeBuildingType::NodeHub)
-            {
-                details.push_back("Selected  Node Hub HP " + to_string(static_cast<int>(building.hp)) + "/" + to_string(static_cast<int>(building.maxHp)));
-                details.push_back("Bonus  Nearby node income boosted");
-                break;
-            }
-        }
-    }
-    else if (_selectionKind == SandforgeSelectionKind::Node && _selectedNodeIndex < static_cast<int>(_world.getNodes().size()))
-    {
-        const SandforgeResourceNode& node = _world.getNodes()[_selectedNodeIndex];
-        const SandforgeNodeDefinition& nodeDef = SandforgeDatabase::getNode(node.resourceType);
-        details.push_back("Selected  " + nodeDef.displayName + " owner P" + to_string(node.ownerId));
-        details.push_back("Workers  " + to_string(countAssignedWorkers(_world, node.id)) + " assigned");
-        if (node.ownerId == 1)
-        {
-            details.push_back("Build  [4] Node Hub  [8] Tower");
-        }
-    }
-    else if (_selectionKind == SandforgeSelectionKind::DefenseTower)
-    {
-        for (const SandforgeBuilding& building : _world.getBuildings())
-        {
-            if (building.alive && building.ownerId == 1 && building.buildingType == SandforgeBuildingType::DefenseTower)
-            {
-                details.push_back("Selected  Defense Tower HP " + to_string(static_cast<int>(building.hp)) + "/" + to_string(static_cast<int>(building.maxHp)));
-                details.push_back("Combat  Auto attacks nearby enemy units");
-                break;
-            }
-        }
-    }
-    return details;
+    return gSelectionController.buildSelectionDetails(*this);
 }
 
 void GameplayState::handlePlayerInput(const InputState& input, const vec2& cursorScreenPosition, const vec2& cursorWorldPosition)
@@ -1906,131 +1209,5 @@ void GameplayState::handlePlayerInput(const InputState& input, const vec2& curso
 
 bool GameplayState::selectObjectAt(const vec2& cursorWorldPosition)
 {
-    for (const SandforgeUnit& unit : _world.getUnits())
-    {
-        if (!unit.alive || unit.ownerId != 1)
-        {
-            continue;
-        }
-
-        const vec2 size = SandforgeDatabase::getUnit(unit.unitType).visuals.spriteSize;
-        const vec2 topLeft(unit.position.x - (size.x * 0.5f), unit.position.y - (size.y * 0.5f));
-        const vec2 bottomRight = topLeft + size;
-        if (cursorWorldPosition.x >= topLeft.x && cursorWorldPosition.x <= bottomRight.x &&
-            cursorWorldPosition.y >= topLeft.y && cursorWorldPosition.y <= bottomRight.y)
-        {
-            _selectedUnitId = unit.id;
-            setSelection(SandforgeSelectionKind::Unit);
-            _statusText = "Selected " + SandforgeDatabase::getUnit(unit.unitType).displayName + ".";
-            return true;
-        }
-    }
-
-    const SandforgeBuilding* hq = _world.findPrimaryBuilding(1, SandforgeBuildingType::HQ);
-    if (hq != nullptr)
-    {
-        const vec2 size = SandforgeDatabase::getBuilding(SandforgeBuildingType::HQ).visuals.spriteSize;
-        const vec2 topLeft(hq->position.x - (size.x * 0.5f), hq->position.y - (size.y * 0.5f));
-        const vec2 bottomRight = topLeft + size;
-        if (cursorWorldPosition.x >= topLeft.x && cursorWorldPosition.x <= bottomRight.x &&
-            cursorWorldPosition.y >= topLeft.y && cursorWorldPosition.y <= bottomRight.y)
-        {
-            setSelection(SandforgeSelectionKind::HQ);
-            _statusText = "Selected Headquarters.";
-            return true;
-        }
-    }
-
-    for (const SandforgeBuilding& building : _world.getBuildings())
-    {
-        if (!building.alive || building.ownerId != 1 || building.buildingType != SandforgeBuildingType::Barracks)
-        {
-            continue;
-        }
-
-        const vec2 size = SandforgeDatabase::getBuilding(SandforgeBuildingType::Barracks).visuals.spriteSize;
-        const vec2 topLeft(building.position.x - (size.x * 0.5f), building.position.y - (size.y * 0.5f));
-        const vec2 bottomRight = topLeft + size;
-        if (cursorWorldPosition.x >= topLeft.x && cursorWorldPosition.x <= bottomRight.x &&
-            cursorWorldPosition.y >= topLeft.y && cursorWorldPosition.y <= bottomRight.y)
-        {
-            setBuildingSelection(SandforgeSelectionKind::Barracks, building.id);
-            _statusText = "Selected Barracks.";
-            return true;
-        }
-    }
-
-    for (const SandforgeBuilding& building : _world.getBuildings())
-    {
-        if (!building.alive || building.ownerId != 1 || building.buildingType != SandforgeBuildingType::Factory)
-        {
-            continue;
-        }
-
-        const vec2 size = SandforgeDatabase::getBuilding(SandforgeBuildingType::Factory).visuals.spriteSize;
-        const vec2 topLeft(building.position.x - (size.x * 0.5f), building.position.y - (size.y * 0.5f));
-        const vec2 bottomRight = topLeft + size;
-        if (cursorWorldPosition.x >= topLeft.x && cursorWorldPosition.x <= bottomRight.x &&
-            cursorWorldPosition.y >= topLeft.y && cursorWorldPosition.y <= bottomRight.y)
-        {
-            setBuildingSelection(SandforgeSelectionKind::Factory, building.id);
-            _statusText = "Selected Factory.";
-            return true;
-        }
-    }
-
-    for (const SandforgeBuilding& building : _world.getBuildings())
-    {
-        if (!building.alive || building.ownerId != 1 || building.buildingType != SandforgeBuildingType::NodeHub)
-        {
-            continue;
-        }
-
-        const vec2 size = SandforgeDatabase::getBuilding(SandforgeBuildingType::NodeHub).visuals.spriteSize;
-        const vec2 topLeft(building.position.x - (size.x * 0.5f), building.position.y - (size.y * 0.5f));
-        const vec2 bottomRight = topLeft + size;
-        if (cursorWorldPosition.x >= topLeft.x && cursorWorldPosition.x <= bottomRight.x &&
-            cursorWorldPosition.y >= topLeft.y && cursorWorldPosition.y <= bottomRight.y)
-        {
-            setSelection(SandforgeSelectionKind::NodeHub);
-            _statusText = "Selected Node Hub.";
-            return true;
-        }
-    }
-
-    for (const SandforgeBuilding& building : _world.getBuildings())
-    {
-        if (!building.alive || building.ownerId != 1 || building.buildingType != SandforgeBuildingType::DefenseTower)
-        {
-            continue;
-        }
-
-        const vec2 size = SandforgeDatabase::getBuilding(SandforgeBuildingType::DefenseTower).visuals.spriteSize;
-        const vec2 topLeft(building.position.x - (size.x * 0.5f), building.position.y - (size.y * 0.5f));
-        const vec2 bottomRight = topLeft + size;
-        if (cursorWorldPosition.x >= topLeft.x && cursorWorldPosition.x <= bottomRight.x &&
-            cursorWorldPosition.y >= topLeft.y && cursorWorldPosition.y <= bottomRight.y)
-        {
-            setSelection(SandforgeSelectionKind::DefenseTower);
-            _statusText = "Selected Defense Tower.";
-            return true;
-        }
-    }
-
-    for (size_t index = 0; index < _world.getNodes().size(); ++index)
-    {
-        const SandforgeResourceNode& node = _world.getNodes()[index];
-        const vec2 size = SandforgeDatabase::getNode(node.resourceType).visuals.spriteSize;
-        const vec2 topLeft(node.position.x - (size.x * 0.5f), node.position.y - (size.y * 0.5f));
-        const vec2 bottomRight = topLeft + size;
-        if (cursorWorldPosition.x >= topLeft.x && cursorWorldPosition.x <= bottomRight.x &&
-            cursorWorldPosition.y >= topLeft.y && cursorWorldPosition.y <= bottomRight.y)
-        {
-            setSelection(SandforgeSelectionKind::Node, static_cast<int>(index));
-            _statusText = "Selected " + SandforgeDatabase::getNode(node.resourceType).displayName + ".";
-            return true;
-        }
-    }
-
-    return false;
+    return gSelectionController.selectObjectAt(*this, cursorWorldPosition);
 }

@@ -164,6 +164,9 @@
     <ClCompile Include="Rendering\Texture2D.cpp" />
     <ClCompile Include="Rendering\VertexBuffer2D.cpp" />
     <ClCompile Include="Scenes\GameplayScene.cpp" />
+    <ClCompile Include="Scenes\GameplayBuildPreviewController.cpp" />
+    <ClCompile Include="Scenes\GameplayHudRenderer.cpp" />
+    <ClCompile Include="Scenes\GameplaySelectionController.cpp" />
     <ClCompile Include="Scenes\GameplayState.cpp" />
     <ClCompile Include="Scenes\HowToPlayScene.cpp" />
     <ClCompile Include="Scenes\TitleScene.cpp" />
@@ -194,7 +197,10 @@
     <ClInclude Include="Rendering\Transform2D.h" />
     <ClInclude Include="Rendering\VertexBuffer2D.h" />
     <ClInclude Include="Scenes\GameScene.h" />
+    <ClInclude Include="Scenes\GameplayBuildPreviewController.h" />
+    <ClInclude Include="Scenes\GameplayHudRenderer.h" />
     <ClInclude Include="Scenes\GameplayScene.h" />
+    <ClInclude Include="Scenes\GameplaySelectionController.h" />
     <ClInclude Include="Scenes\GameplayState.h" />
     <ClInclude Include="Scenes\HowToPlayScene.h" />
     <ClInclude Include="Scenes\TitleScene.h" />

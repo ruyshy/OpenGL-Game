@@ -63,6 +63,15 @@
     <ClCompile Include="Scenes\GameplayScene.cpp">
       <Filter>Scenes</Filter>
     </ClCompile>
+    <ClCompile Include="Scenes\GameplayBuildPreviewController.cpp">
+      <Filter>Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Scenes\GameplayHudRenderer.cpp">
+      <Filter>Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Scenes\GameplaySelectionController.cpp">
+      <Filter>Scenes</Filter>
+    </ClCompile>
     <ClCompile Include="Scenes\GameplayState.cpp">
       <Filter>Scenes</Filter>
     </ClCompile>
@@ -135,7 +144,16 @@
     <ClInclude Include="Scenes\GameScene.h">
       <Filter>Scenes</Filter>
     </ClInclude>
+    <ClInclude Include="Scenes\GameplayBuildPreviewController.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Scenes\GameplayHudRenderer.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
     <ClInclude Include="Scenes\GameplayScene.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Scenes\GameplaySelectionController.h">
       <Filter>Scenes</Filter>
     </ClInclude>
     <ClInclude Include="Scenes\GameplayState.h">
