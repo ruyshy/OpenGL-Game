@@ -18,19 +18,23 @@ int main()
 	//_CrtSetBreakAlloc(1345);
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	const std::string& windowTitle = "Title";
-	int majorVersion = 4;
-	int minorVersion = 6;
+	OpenGLWindowSettings settings;
+	settings.title = "OpenGL Game";
+	settings.majorVersion = 4;
+	settings.minorVersion = 6;
+	settings.width = 1280;
+	settings.height = 720;
+	settings.enableVSync = true;
 
 	unique_ptr<MainWindow> window = make_unique<MainWindow>();
 
-	if (!window->createOpenGLWindow(windowTitle, majorVersion, minorVersion))
+	if (!window->createOpenGLWindow(settings))
 	{
-		printf("Failed to create window with OpenGL context %d.%d! Shutting down...\n", majorVersion, minorVersion);
+		printf("Failed to create window with OpenGL context %d.%d! Shutting down...\n", settings.majorVersion, settings.minorVersion);
 		return -1;
 	}
 
 	window->runApp();
 
-	return 0;
+	return window->hasErrorOccured() ? -1 : 0;
 }

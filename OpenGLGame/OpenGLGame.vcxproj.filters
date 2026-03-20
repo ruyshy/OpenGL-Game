@@ -30,6 +30,21 @@
     <ClCompile Include="ResourceManager.cpp">
       <Filter>Management</Filter>
     </ClCompile>
+    <ClCompile Include="Animation2D.cpp">
+      <Filter>OpenGL\Animation2D</Filter>
+    </ClCompile>
+    <ClCompile Include="GameplayScene.cpp">
+      <Filter>Game\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="GameplayState.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="InputState.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="TitleScene.cpp">
+      <Filter>Game\Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -63,6 +78,27 @@
     <ClInclude Include="ResourceManager.h">
       <Filter>Management</Filter>
     </ClInclude>
+    <ClInclude Include="Animation2D.h">
+      <Filter>OpenGL\Animation2D</Filter>
+    </ClInclude>
+    <ClInclude Include="GameContext.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="GameplayScene.h">
+      <Filter>Game\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="GameplayState.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="InputState.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="TitleScene.h">
+      <Filter>Game\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="GameScene.h">
+      <Filter>Game\Scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="OpenGL">
@@ -94,6 +130,15 @@
     </Filter>
     <Filter Include="Management">
       <UniqueIdentifier>{99d1df4a-c511-42ce-8850-ae1e57c42dad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenGL\Animation2D">
+      <UniqueIdentifier>{9cd8ea82-f5fb-45fa-9cec-65a5b303587b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game">
+      <UniqueIdentifier>{25a5b071-f586-49c6-809b-f07a2d6130a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Scene">
+      <UniqueIdentifier>{28d6f035-2355-4571-b484-f4438a22232f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

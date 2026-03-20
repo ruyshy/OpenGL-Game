@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <functional>
+#include <cstdio>
 #include <tchar.h>
 #include <memory>
 #include <string>
@@ -34,7 +35,9 @@ using namespace std;
 #pragma comment(lib, "OpenGL32.lib")
 
 #include <glad/glad.h>
+#define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 

@@ -3,6 +3,17 @@
 #ifndef OPENGOWINDOW_H_
 #define OPENGOWINDOW_H_
 
+struct OpenGLWindowSettings
+{
+    string title = "OpenGL Game";
+    int majorVersion = 4;
+    int minorVersion = 6;
+    int width = 800;
+    int height = 600;
+    bool showFullscreen = false;
+    bool enableVSync = true;
+};
+
 class OpenGLWindow
 {
 public:
@@ -10,6 +21,7 @@ public:
     virtual ~OpenGLWindow() {}
 
     bool createOpenGLWindow(const std::string& windowTitle, int majorVersion, int minorVersion, int width =  800, int height = 600, bool showFullscreen = false);
+    bool createOpenGLWindow(const OpenGLWindowSettings& settings);
     GLFWwindow* getWindow() const;
     void runApp();
     virtual void initializeScene() {}
@@ -40,15 +52,20 @@ protected:
     virtual void onWindowSizeChanged(int width, int height) {}
     virtual void onMouseButtonPressed(int button, int action) {}
     virtual void onMouseWheelScroll(double scrollOffsetX, double scrollOffsetY) {}
+    virtual void onKeyChanged(int key, int action) {}
 
 private:
     GLFWwindow* _window = nullptr;
     bool _keyWasPressed[512] = { 0, };
     bool _hasErrorOccured = false;
+    bool _sceneInitialized = false;
 
     mat4 _projectionMatrix = mat4(1.0f);
     mat4 _orthoMatrix = mat4(1.0f);
     void recalculateProjectionMatrix();
+    bool initializeGlad() const;
+    void applyWindowStyle() const;
+    void tryLoadWindowIcon() const;
 
     double _lastFrameTime = 0.0;
     double _lastFrameTimeFPS = 0.0;
@@ -68,6 +85,7 @@ private:
     static void onWindowSizeChangedStatic(GLFWwindow* window, int width, int height);
     static void onMouseButtonPressedStatic(GLFWwindow* window, int button, int action, int mods);
     static void onMouseWheelScrollStatic(GLFWwindow* window, double scrollOffsetX, double scrollOffsetY);
+    static void onKeyChangedStatic(GLFWwindow* window, int key, int scancode, int action, int mods);
     static void drop_callback(GLFWwindow* window, int count, const char** paths);
 
     static map<GLFWwindow*, OpenGLWindow*> _windows;

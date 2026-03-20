@@ -3,6 +3,16 @@
 
 map<GLFWwindow*, OpenGLWindow*> OpenGLWindow::_windows;
 
+namespace
+{
+    constexpr double kMaxFrameDeltaSeconds = 0.1;
+
+    void glfwErrorCallback(int errorCode, const char* description)
+    {
+        cerr << "GLFW error (" << errorCode << "): " << (description != nullptr ? description : "unknown") << endl;
+    }
+}
+
 OpenGLWindow::OpenGLWindow()
 {
     for (auto& kwp : _keyWasPressed)
@@ -13,27 +23,59 @@ OpenGLWindow::OpenGLWindow()
 
 bool OpenGLWindow::createOpenGLWindow(const string& windowTitle, int majorVersion, int minorVersion, int width, int height, bool showFullscreen)
 {
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, majorVersion);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minorVersion);
+    OpenGLWindowSettings settings;
+    settings.title = windowTitle;
+    settings.majorVersion = majorVersion;
+    settings.minorVersion = minorVersion;
+    settings.width = width;
+    settings.height = height;
+    settings.showFullscreen = showFullscreen;
+    return createOpenGLWindow(settings);
+}
+
+bool OpenGLWindow::createOpenGLWindow(const OpenGLWindowSettings& settings)
+{
+    glfwSetErrorCallback(glfwErrorCallback);
+    if (glfwInit() == GLFW_FALSE)
+    {
+        cerr << "Failed to initialize GLFW." << endl;
+        return false;
+    }
+
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, settings.majorVersion);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, settings.minorVersion);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-    const auto primaryMonitor = glfwGetPrimaryMonitor();
-    const auto videoMode = glfwGetVideoMode(primaryMonitor);
-
-    _window = glfwCreateWindow(width, height, windowTitle.c_str(), showFullscreen ? glfwGetPrimaryMonitor() : nullptr, nullptr);
+    _window = glfwCreateWindow(
+        settings.width,
+        settings.height,
+        settings.title.c_str(),
+        settings.showFullscreen ? glfwGetPrimaryMonitor() : nullptr,
+        nullptr);
     if (_window == nullptr)
     {
+        glfwTerminate();
         return false;
     }
 
     glfwMakeContextCurrent(_window);
-    gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
+    if (!initializeGlad())
+    {
+        glfwDestroyWindow(_window);
+        _window = nullptr;
+        glfwTerminate();
+        return false;
+    }
+
     glfwSetWindowSizeCallback(_window, onWindowSizeChangedStatic);
     glfwSetDropCallback(_window, drop_callback);
+    glfwSetMouseButtonCallback(_window, onMouseButtonPressedStatic);
+    glfwSetScrollCallback(_window, onMouseWheelScrollStatic);
+    glfwSetKeyCallback(_window, onKeyChangedStatic);
+    _windows[_window] = this;
 
-    if (showFullscreen)
+    if (settings.showFullscreen)
     {
         glfwMaximizeWindow(_window);
         // After calling glfwMaximizeWindow, the onWindowSizeChanged somehow does not get called. Therefore I call it manually.
@@ -43,22 +85,12 @@ bool OpenGLWindow::createOpenGLWindow(const string& windowTitle, int majorVersio
     }
     else
     {
-        onWindowSizeChangedInternal(width, height);
+        onWindowSizeChangedInternal(settings.width, settings.height);
     }
 
-    auto windowHandle = GetForegroundWindow();
-    long Style = GetWindowLong(windowHandle, GWL_STYLE);
-    Style &= ~WS_MAXIMIZEBOX; //this makes it still work when WS_MAXIMIZEBOX is actually already toggled off
-    SetWindowLong(windowHandle, GWL_STYLE, Style);
-
-    glfwSetMouseButtonCallback(_window, onMouseButtonPressedStatic);
-    glfwSetScrollCallback(_window, onMouseWheelScrollStatic);
-    _windows[_window] = this;
-
-    GLFWimage images[1];
-    images[0].pixels = stbi_load(".\\Image\\icon.png", &images[0].width, &images[0].height, 0, 4); //rgba channels 
-    glfwSetWindowIcon(this->getWindow(), 1, images);
-    stbi_image_free(images[0].pixels);
+    applyWindowStyle();
+    tryLoadWindowIcon();
+    setVerticalSynchronization(settings.enableVSync);
 
     return true;
 }
@@ -90,9 +122,16 @@ bool OpenGLWindow::keyPressedOnce(int keyCode)
 
 void OpenGLWindow::runApp()
 {
-    setVerticalSynchronization(true);
+    if (_window == nullptr)
+    {
+        cerr << "runApp called without a valid window." << endl;
+        _hasErrorOccured = true;
+        return;
+    }
+
     recalculateProjectionMatrix();
     initializeScene();
+    _sceneInitialized = true;
 
     // Update time at the beginning, so that calculations are correct
     _lastFrameTime = _lastFrameTimeFPS = glfwGetTime();
@@ -104,10 +143,19 @@ void OpenGLWindow::runApp()
         updateScene();
     }
 
-    releaseScene();
+    if (_sceneInitialized)
+    {
+        releaseScene();
+        _sceneInitialized = false;
+    }
 
-    glfwDestroyWindow(_window);
-    _windows.erase(_windows.find(_window));
+    auto* window = _window;
+    glfwDestroyWindow(window);
+    if (const auto iterator = _windows.find(window); iterator != _windows.end())
+    {
+        _windows.erase(iterator);
+    }
+    _window = nullptr;
 
     if (_windows.empty())
     {
@@ -122,7 +170,10 @@ GLFWwindow* OpenGLWindow::getWindow() const
 
 void OpenGLWindow::closeWindow(bool hasErrorOccured)
 {
-    glfwSetWindowShouldClose(_window, true);
+    if (_window != nullptr)
+    {
+        glfwSetWindowShouldClose(_window, true);
+    }
     _hasErrorOccured = hasErrorOccured;
 }
 
@@ -196,6 +247,11 @@ OpenGLWindow* OpenGLWindow::getDefaultWindow()
 
 void OpenGLWindow::Render()
 {
+    if (_window == nullptr)
+    {
+        return;
+    }
+
     renderScene();
 
     glfwSwapBuffers(_window);
@@ -204,9 +260,14 @@ void OpenGLWindow::Render()
 
 void OpenGLWindow::recalculateProjectionMatrix()
 {
+    if (_window == nullptr)
+    {
+        return;
+    }
+
     int width, height;
     glfwGetWindowSize(getWindow(), &width, &height);
-    if (width == 0 && height == 0)  return;
+    if (width <= 0 || height <= 0)  return;
     _projectionMatrix = perspective(radians(57.0f), static_cast<float>(width) / static_cast<float>(height), 0.5f, 1500.0f);
     _orthoMatrix = ortho(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height));
 }
@@ -214,7 +275,7 @@ void OpenGLWindow::recalculateProjectionMatrix()
 void OpenGLWindow::updateDeltaTimeAndFPS()
 {
     const auto currentTime = glfwGetTime();
-    _timeDelta = currentTime - _lastFrameTime;
+    _timeDelta = std::min(currentTime - _lastFrameTime, kMaxFrameDeltaSeconds);
     _lastFrameTime = currentTime;
     _nextFPS++;
 
@@ -228,10 +289,15 @@ void OpenGLWindow::updateDeltaTimeAndFPS()
 
 void OpenGLWindow::onWindowSizeChangedInternal(int width, int height)
 {
-    recalculateProjectionMatrix();
-    glViewport(0, 0, width, height);
+    if (width <= 0 || height <= 0)
+    {
+        return;
+    }
+
     screenWidth_ = width;
     screenHeight_ = height;
+    recalculateProjectionMatrix();
+    glViewport(0, 0, width, height);
     onWindowSizeChanged(width, height);
 }
 
@@ -245,6 +311,8 @@ void OpenGLWindow::onWindowSizeChangedStatic(GLFWwindow* window, int width, int 
 
 void OpenGLWindow::onMouseButtonPressedStatic(GLFWwindow* window, int button, int action, int mods)
 {
+    (void)mods;
+
     if (_windows.count(window) != 0)
     {
         _windows[window]->onMouseButtonPressed(button, action);
@@ -259,11 +327,75 @@ void OpenGLWindow::onMouseWheelScrollStatic(GLFWwindow* window, double scrollOff
     }
 }
 
+void OpenGLWindow::onKeyChangedStatic(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    (void)scancode;
+    (void)mods;
+
+    if (_windows.count(window) != 0)
+    {
+        _windows[window]->onKeyChanged(key, action);
+    }
+}
+
 void OpenGLWindow::drop_callback(GLFWwindow* window, int count, const char** paths)
 {
+    if (count <= 0 || paths == nullptr || paths[0] == nullptr)
+    {
+        return;
+    }
+
     vector<string> string_vector;
     string_vector.push_back(util::encoding::utf8_to_acp(paths[0]));
 
     cout << "drop count : " << count << endl;
     cout << "paths : " << string_vector[0] << endl;
+}
+
+bool OpenGLWindow::initializeGlad() const
+{
+    const auto loaded = gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
+    if (loaded == 0)
+    {
+        cerr << "Failed to initialize GLAD." << endl;
+        return false;
+    }
+
+    return true;
+}
+
+void OpenGLWindow::applyWindowStyle() const
+{
+    if (_window == nullptr)
+    {
+        return;
+    }
+
+    auto* nativeWindow = glfwGetWin32Window(_window);
+    if (nativeWindow == nullptr)
+    {
+        return;
+    }
+
+    LONG_PTR style = GetWindowLongPtr(nativeWindow, GWL_STYLE);
+    style &= ~WS_MAXIMIZEBOX;
+    SetWindowLongPtr(nativeWindow, GWL_STYLE, style);
+}
+
+void OpenGLWindow::tryLoadWindowIcon() const
+{
+    if (_window == nullptr)
+    {
+        return;
+    }
+
+    GLFWimage image{};
+    image.pixels = stbi_load(".\\Image\\icon.png", &image.width, &image.height, 0, 4);
+    if (image.pixels == nullptr)
+    {
+        return;
+    }
+
+    glfwSetWindowIcon(_window, 1, &image);
+    stbi_image_free(image.pixels);
 }
