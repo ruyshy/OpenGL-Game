@@ -5,12 +5,12 @@
 
 namespace
 {
-    int countAssignedWorkers(const SandforgeWorld& world, SandforgeEntityId nodeId)
+    int countAssignedWorkers(const SandforgeWorld& world, SandforgePlayerId playerId, SandforgeEntityId nodeId)
     {
         int count = 0;
         for (const SandforgeUnit& unit : world.getUnits())
         {
-            if (!unit.alive || unit.ownerId != 1 || unit.unitType != SandforgeUnitType::Worker)
+            if (!unit.alive || unit.ownerId != playerId || unit.unitType != SandforgeUnitType::Worker)
             {
                 continue;
             }
@@ -55,7 +55,7 @@ const SandforgeBuilding* GameplaySelectionController::getSelectedBuilding(const 
     }
 
     const SandforgeBuilding* building = state._world.findBuildingById(state._selectedBuildingId);
-    if (building == nullptr || !building->alive || building->ownerId != 1)
+    if (building == nullptr || !building->alive || building->ownerId != state.getLocalPlayerId())
     {
         return nullptr;
     }
@@ -150,7 +150,7 @@ vector<string> GameplaySelectionController::buildSelectionDetails(const Gameplay
     }
     else if (state._selectionKind == SandforgeSelectionKind::HQ)
     {
-        const SandforgeBuilding* hq = state._world.findPrimaryBuilding(1, SandforgeBuildingType::HQ);
+        const SandforgeBuilding* hq = state._world.findPrimaryBuilding(state.getLocalPlayerId(), SandforgeBuildingType::HQ);
         if (hq != nullptr)
         {
             details.push_back("Selected  HQ HP " + to_string(static_cast<int>(hq->hp)) + "/" + to_string(static_cast<int>(hq->maxHp)));
@@ -179,7 +179,7 @@ vector<string> GameplaySelectionController::buildSelectionDetails(const Gameplay
     {
         for (const SandforgeBuilding& building : state._world.getBuildings())
         {
-            if (building.alive && building.ownerId == 1 && building.buildingType == SandforgeBuildingType::NodeHub)
+            if (building.alive && building.ownerId == state.getLocalPlayerId() && building.buildingType == SandforgeBuildingType::NodeHub)
             {
                 details.push_back("Selected  Node Hub HP " + to_string(static_cast<int>(building.hp)) + "/" + to_string(static_cast<int>(building.maxHp)));
                 details.push_back("Bonus  Nearby node income boosted");
@@ -191,8 +191,8 @@ vector<string> GameplaySelectionController::buildSelectionDetails(const Gameplay
     {
         const SandforgeResourceNode& node = state._world.getNodes()[state._selectedNodeIndex];
         details.push_back("Selected  " + SandforgeDatabase::getNode(node.resourceType).displayName + " owner P" + to_string(node.ownerId));
-        details.push_back("Workers  " + to_string(countAssignedWorkers(state._world, node.id)) + " assigned");
-        if (node.ownerId == 1)
+        details.push_back("Workers  " + to_string(countAssignedWorkers(state._world, state.getLocalPlayerId(), node.id)) + " assigned");
+        if (node.ownerId == state.getLocalPlayerId())
         {
             details.push_back("Build  [4] Node Hub  [8] Tower");
         }
@@ -201,7 +201,7 @@ vector<string> GameplaySelectionController::buildSelectionDetails(const Gameplay
     {
         for (const SandforgeBuilding& building : state._world.getBuildings())
         {
-            if (building.alive && building.ownerId == 1 && building.buildingType == SandforgeBuildingType::DefenseTower)
+            if (building.alive && building.ownerId == state.getLocalPlayerId() && building.buildingType == SandforgeBuildingType::DefenseTower)
             {
                 details.push_back("Selected  Defense Tower HP " + to_string(static_cast<int>(building.hp)) + "/" + to_string(static_cast<int>(building.maxHp)));
                 details.push_back("Combat  Auto attacks nearby enemy units");
@@ -216,7 +216,7 @@ bool GameplaySelectionController::selectObjectAt(GameplayState& state, const vec
 {
     for (const SandforgeUnit& unit : state._world.getUnits())
     {
-        if (!unit.alive || unit.ownerId != 1)
+        if (!unit.alive || unit.ownerId != state.getLocalPlayerId())
         {
             continue;
         }
@@ -234,7 +234,7 @@ bool GameplaySelectionController::selectObjectAt(GameplayState& state, const vec
         }
     }
 
-    const SandforgeBuilding* hq = state._world.findPrimaryBuilding(1, SandforgeBuildingType::HQ);
+    const SandforgeBuilding* hq = state._world.findPrimaryBuilding(state.getLocalPlayerId(), SandforgeBuildingType::HQ);
     if (hq != nullptr)
     {
         const vec2 size = SandforgeDatabase::getBuilding(SandforgeBuildingType::HQ).visuals.spriteSize;
@@ -251,7 +251,7 @@ bool GameplaySelectionController::selectObjectAt(GameplayState& state, const vec
 
     for (const SandforgeBuilding& building : state._world.getBuildings())
     {
-        if (!building.alive || building.ownerId != 1 || building.buildingType != SandforgeBuildingType::Barracks)
+        if (!building.alive || building.ownerId != state.getLocalPlayerId() || building.buildingType != SandforgeBuildingType::Barracks)
         {
             continue;
         }
@@ -270,7 +270,7 @@ bool GameplaySelectionController::selectObjectAt(GameplayState& state, const vec
 
     for (const SandforgeBuilding& building : state._world.getBuildings())
     {
-        if (!building.alive || building.ownerId != 1 || building.buildingType != SandforgeBuildingType::Factory)
+        if (!building.alive || building.ownerId != state.getLocalPlayerId() || building.buildingType != SandforgeBuildingType::Factory)
         {
             continue;
         }
@@ -289,7 +289,7 @@ bool GameplaySelectionController::selectObjectAt(GameplayState& state, const vec
 
     for (const SandforgeBuilding& building : state._world.getBuildings())
     {
-        if (!building.alive || building.ownerId != 1 || building.buildingType != SandforgeBuildingType::NodeHub)
+        if (!building.alive || building.ownerId != state.getLocalPlayerId() || building.buildingType != SandforgeBuildingType::NodeHub)
         {
             continue;
         }
@@ -308,7 +308,7 @@ bool GameplaySelectionController::selectObjectAt(GameplayState& state, const vec
 
     for (const SandforgeBuilding& building : state._world.getBuildings())
     {
-        if (!building.alive || building.ownerId != 1 || building.buildingType != SandforgeBuildingType::DefenseTower)
+        if (!building.alive || building.ownerId != state.getLocalPlayerId() || building.buildingType != SandforgeBuildingType::DefenseTower)
         {
             continue;
         }

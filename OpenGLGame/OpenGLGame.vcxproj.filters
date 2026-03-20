@@ -10,6 +10,9 @@
     <Filter Include="Data">
       <UniqueIdentifier>{0c9ac23f-0ad4-4ed1-a8d3-7862c7f7c213}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Network">
+      <UniqueIdentifier>{5fc4f387-2291-4e37-b1e5-dcf0ce6518c2}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Rendering">
       <UniqueIdentifier>{d1d6f5d6-7287-4552-a502-d1cbf79e1326}</UniqueIdentifier>
     </Filter>
@@ -38,6 +41,12 @@
     </ClCompile>
     <ClCompile Include="Data\SandforgeDatabase.cpp">
       <Filter>Data</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\SandforgeMultiplayerSession.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\SandforgePacketBuffer.cpp">
+      <Filter>Network</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Animation2D.cpp">
       <Filter>Rendering</Filter>
@@ -69,13 +78,22 @@
     <ClCompile Include="Scenes\GameplayHudRenderer.cpp">
       <Filter>Scenes</Filter>
     </ClCompile>
+    <ClCompile Include="Scenes\GameplayInputController.cpp">
+      <Filter>Scenes</Filter>
+    </ClCompile>
     <ClCompile Include="Scenes\GameplaySelectionController.cpp">
       <Filter>Scenes</Filter>
     </ClCompile>
     <ClCompile Include="Scenes\GameplayState.cpp">
       <Filter>Scenes</Filter>
     </ClCompile>
+    <ClCompile Include="Scenes\GameplayWorldRenderer.cpp">
+      <Filter>Scenes</Filter>
+    </ClCompile>
     <ClCompile Include="Scenes\HowToPlayScene.cpp">
+      <Filter>Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Scenes\MultiplayerLobbyScene.cpp">
       <Filter>Scenes</Filter>
     </ClCompile>
     <ClCompile Include="Scenes\TitleScene.cpp">
@@ -117,6 +135,15 @@
     <ClInclude Include="Data\SandforgeDatabase.h">
       <Filter>Data</Filter>
     </ClInclude>
+    <ClInclude Include="Network\SandforgeMultiplayerSession.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\SandforgePacketBuffer.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\SandforgePacketTypes.h">
+      <Filter>Network</Filter>
+    </ClInclude>
     <ClInclude Include="Rendering\Animation2D.h">
       <Filter>Rendering</Filter>
     </ClInclude>
@@ -150,6 +177,9 @@
     <ClInclude Include="Scenes\GameplayHudRenderer.h">
       <Filter>Scenes</Filter>
     </ClInclude>
+    <ClInclude Include="Scenes\GameplayInputController.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
     <ClInclude Include="Scenes\GameplayScene.h">
       <Filter>Scenes</Filter>
     </ClInclude>
@@ -159,7 +189,13 @@
     <ClInclude Include="Scenes\GameplayState.h">
       <Filter>Scenes</Filter>
     </ClInclude>
+    <ClInclude Include="Scenes\GameplayWorldRenderer.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
     <ClInclude Include="Scenes\HowToPlayScene.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Scenes\MultiplayerLobbyScene.h">
       <Filter>Scenes</Filter>
     </ClInclude>
     <ClInclude Include="Scenes\TitleScene.h">

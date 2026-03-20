@@ -5,6 +5,8 @@
 
 #include "InputState.h"
 
+class SandforgeMultiplayerSession;
+
 struct GameContext
 {
     string appName = "OpenGL Game";
@@ -12,6 +14,7 @@ struct GameContext
     double totalTime = 0.0;
     int frameCount = 0;
     InputState input;
+    shared_ptr<SandforgeMultiplayerSession> multiplayerSession;
 };
 
 #endif // !GAMECONTEXT_H_

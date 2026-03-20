@@ -3,6 +3,8 @@ C:\Project\OpenGLGame\OpenGLGame\App\InputState.cpp;C:\Project\OpenGLGame\OpenGL
 C:\Project\OpenGLGame\OpenGLGame\App\MainWindow.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\MainWindow.obj
 C:\Project\OpenGLGame\OpenGLGame\App\OpenGLWindow.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\OpenGLWindow.obj
 C:\Project\OpenGLGame\OpenGLGame\Data\SandforgeDatabase.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\SandforgeDatabase.obj
+C:\Project\OpenGLGame\OpenGLGame\Network\SandforgeMultiplayerSession.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\SandforgeMultiplayerSession.obj
+C:\Project\OpenGLGame\OpenGLGame\Network\SandforgePacketBuffer.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\SandforgePacketBuffer.obj
 C:\Project\OpenGLGame\OpenGLGame\Rendering\Animation2D.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\Animation2D.obj
 C:\Project\OpenGLGame\OpenGLGame\Rendering\glad.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\glad.obj
 C:\Project\OpenGLGame\OpenGLGame\Rendering\ResourceManager.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\ResourceManager.obj
@@ -13,9 +15,12 @@ C:\Project\OpenGLGame\OpenGLGame\Rendering\VertexBuffer2D.cpp;C:\Project\OpenGLG
 C:\Project\OpenGLGame\OpenGLGame\Scenes\GameplayScene.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\GameplayScene.obj
 C:\Project\OpenGLGame\OpenGLGame\Scenes\GameplayBuildPreviewController.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\GameplayBuildPreviewController.obj
 C:\Project\OpenGLGame\OpenGLGame\Scenes\GameplayHudRenderer.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\GameplayHudRenderer.obj
+C:\Project\OpenGLGame\OpenGLGame\Scenes\GameplayInputController.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\GameplayInputController.obj
 C:\Project\OpenGLGame\OpenGLGame\Scenes\GameplaySelectionController.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\GameplaySelectionController.obj
 C:\Project\OpenGLGame\OpenGLGame\Scenes\GameplayState.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\GameplayState.obj
+C:\Project\OpenGLGame\OpenGLGame\Scenes\GameplayWorldRenderer.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\GameplayWorldRenderer.obj
 C:\Project\OpenGLGame\OpenGLGame\Scenes\HowToPlayScene.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\HowToPlayScene.obj
+C:\Project\OpenGLGame\OpenGLGame\Scenes\MultiplayerLobbyScene.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\MultiplayerLobbyScene.obj
 C:\Project\OpenGLGame\OpenGLGame\Scenes\TitleScene.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\TitleScene.obj
 C:\Project\OpenGLGame\OpenGLGame\Text\Encoding.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\Encoding.obj
 C:\Project\OpenGLGame\OpenGLGame\Text\FontAsset.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\FontAsset.obj

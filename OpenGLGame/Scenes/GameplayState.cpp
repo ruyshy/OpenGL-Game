@@ -3,9 +3,12 @@
 
 #include "GameplayBuildPreviewController.h"
 #include "GameplayHudRenderer.h"
+#include "GameplayInputController.h"
 #include "GameplaySelectionController.h"
+#include "GameplayWorldRenderer.h"
 #include "Animation2D.h"
 #include "InputState.h"
+#include "Network/SandforgeMultiplayerSession.h"
 #include "Shader.h"
 #include "Sprite.h"
 
@@ -13,8 +16,10 @@ namespace
 {
     constexpr float kWorldWidth = 2560.0f;
     GameplayHudRenderer gHudRenderer;
+    GameplayInputController gInputController;
     GameplaySelectionController gSelectionController;
     GameplayBuildPreviewController gBuildPreviewController;
+    GameplayWorldRenderer gWorldRenderer;
 
     const string kSpriteVertexShader = R"(#version 330 core
 layout (location = 0) in vec2 aPos;
@@ -61,40 +66,6 @@ void main()
         return stream.str();
     }
 
-    int findFriendlyResourceNodeIndex(const SandforgeWorld& world, SandforgeResourceType resourceType)
-    {
-        for (size_t index = 0; index < world.getNodes().size(); ++index)
-        {
-            const SandforgeResourceNode& node = world.getNodes()[index];
-            if (node.ownerId != 1 || node.resourceType != resourceType)
-            {
-                continue;
-            }
-
-            return static_cast<int>(index);
-        }
-
-        return -1;
-    }
-
-    int countAssignedWorkers(const SandforgeWorld& world, SandforgeEntityId nodeId)
-    {
-        int count = 0;
-        for (const SandforgeUnit& unit : world.getUnits())
-        {
-            if (!unit.alive || unit.ownerId != 1 || unit.unitType != SandforgeUnitType::Worker)
-            {
-                continue;
-            }
-
-            if (unit.captureNodeId == nodeId)
-            {
-                ++count;
-            }
-        }
-
-        return count;
-    }
 }
 
 void GameplayState::reset()
@@ -159,8 +130,14 @@ void GameplayState::update(const InputState& input, double deltaTime, const vec2
     _cursorScreenPosition = cursorScreenPosition;
     _cursorWorldPosition = cursorWorldPosition;
     updateHoveredHudCommand(cursorScreenPosition);
-    handlePlayerInput(input, cursorScreenPosition, cursorWorldPosition);
-    _world.update(deltaTime);
+    if (_inputEnabled)
+    {
+        handlePlayerInput(input, cursorScreenPosition, cursorWorldPosition);
+    }
+    if (_simulationEnabled)
+    {
+        _world.update(deltaTime);
+    }
     _statusText = _world.getStatusText();
 }
 
@@ -239,7 +216,7 @@ const string& GameplayState::getStatusText() const
 
 vector<string> GameplayState::buildHudLines() const
 {
-    const SandforgePlayerState& player = _world.getPlayerState(1);
+    const SandforgePlayerState& player = _world.getPlayerState(_localPlayerId);
     const SandforgeMatchResult result = _world.getMatchResult();
 
     vector<string> lines;
@@ -248,14 +225,14 @@ vector<string> GameplayState::buildHudLines() const
     lines.push_back("Status  " + _statusText);
     if (result.gameOver)
     {
-        lines.push_back(result.winnerPlayerId == 1 ? "Result  Victory" : "Result  Defeat");
+        lines.push_back(result.winnerPlayerId == _localPlayerId ? "Result  Victory" : "Result  Defeat");
     }
     return lines;
 }
 
 string GameplayState::buildTopBarText() const
 {
-    const SandforgePlayerState& player = _world.getPlayerState(1);
+    const SandforgePlayerState& player = _world.getPlayerState(_localPlayerId);
     return "Time " + formatSeconds(_world.getElapsedTime()) +
         "   Metal " + to_string(player.metal) +
         "   Energy " + to_string(player.energy);
@@ -316,24 +293,187 @@ bool GameplayState::isMatchOver() const
     return _world.getMatchResult().gameOver;
 }
 
+void GameplayState::setLocalPlayerId(SandforgePlayerId playerId)
+{
+    _localPlayerId = playerId == 2 ? 2 : 1;
+}
+
+SandforgePlayerId GameplayState::getLocalPlayerId() const
+{
+    return _localPlayerId;
+}
+
+SandforgePlayerId GameplayState::getEnemyPlayerId() const
+{
+    return _localPlayerId == 2 ? 1 : 2;
+}
+
+void GameplayState::setMultiplayerSession(const shared_ptr<SandforgeMultiplayerSession>& session)
+{
+    _multiplayerSession = session;
+}
+
+bool GameplayState::isRemoteClientControlled() const
+{
+    return _multiplayerSession != nullptr && !_simulationEnabled;
+}
+
+bool GameplayState::requestQueueProduction(SandforgeBuildingType buildingType, SandforgeUnitType unitType)
+{
+    if (isRemoteClientControlled())
+    {
+        if (buildingType == SandforgeBuildingType::HQ)
+        {
+            _multiplayerSession->sendProduceCommand(0, buildingType, unitType);
+            _statusText = "Production request sent to host.";
+            return true;
+        }
+        return false;
+    }
+
+    return _world.queueProduction(_localPlayerId, buildingType, unitType);
+}
+
+bool GameplayState::requestQueueProduction(SandforgeEntityId buildingId, SandforgeBuildingType buildingType, SandforgeUnitType unitType)
+{
+    if (isRemoteClientControlled())
+    {
+        _multiplayerSession->sendProduceCommand(buildingId, buildingType, unitType);
+        _statusText = "Production request sent to host.";
+        return true;
+    }
+
+    return buildingId != 0 ? _world.queueProduction(_localPlayerId, buildingId, unitType) : _world.queueProduction(_localPlayerId, buildingType, unitType);
+}
+
+bool GameplayState::requestAssignWorkerToNode(size_t nodeIndex)
+{
+    if (isRemoteClientControlled())
+    {
+        _multiplayerSession->sendAssignWorkerCommand(0, static_cast<uint16_t>(nodeIndex));
+        _statusText = "Worker assignment sent to host.";
+        return true;
+    }
+
+    return _world.assignWorkerToNode(_localPlayerId, nodeIndex);
+}
+
+bool GameplayState::requestAssignWorkerToNode(SandforgeEntityId workerId, size_t nodeIndex)
+{
+    if (isRemoteClientControlled())
+    {
+        _multiplayerSession->sendAssignWorkerCommand(workerId, static_cast<uint16_t>(nodeIndex));
+        _statusText = "Worker assignment sent to host.";
+        return true;
+    }
+
+    return _world.assignWorkerToNode(_localPlayerId, workerId, nodeIndex);
+}
+
+bool GameplayState::requestMoveUnit(SandforgeEntityId unitId, const SandforgeVec2& position)
+{
+    if (isRemoteClientControlled())
+    {
+        _multiplayerSession->sendMoveUnitCommand(unitId, position);
+        _statusText = "Move command sent to host.";
+        return true;
+    }
+
+    return _world.moveUnitTo(_localPlayerId, unitId, position);
+}
+
+bool GameplayState::requestBuildPlacement(SandforgeBuildPreviewKind kind, int nodeIndex, const SandforgeVec2& position)
+{
+    if (isRemoteClientControlled())
+    {
+        _multiplayerSession->sendBuildCommand(
+            kind == SandforgeBuildPreviewKind::Barracks ? SandforgeBuildingType::Barracks :
+            kind == SandforgeBuildPreviewKind::Factory ? SandforgeBuildingType::Factory :
+            kind == SandforgeBuildPreviewKind::NodeHub ? SandforgeBuildingType::NodeHub :
+            SandforgeBuildingType::DefenseTower,
+            static_cast<uint16_t>((std::max)(nodeIndex, 0)),
+            position);
+        _statusText = "Build request sent to host.";
+        return true;
+    }
+
+    switch (kind)
+    {
+    case SandforgeBuildPreviewKind::Barracks: return _world.buildBarracksAt(_localPlayerId, position);
+    case SandforgeBuildPreviewKind::Factory: return _world.buildFactoryAt(_localPlayerId, position);
+    case SandforgeBuildPreviewKind::NodeHub: return nodeIndex >= 0 ? _world.buildNodeHubAt(_localPlayerId, static_cast<size_t>(nodeIndex), position) : false;
+    case SandforgeBuildPreviewKind::DefenseTower: return nodeIndex >= 0 ? _world.buildDefenseTowerAt(_localPlayerId, static_cast<size_t>(nodeIndex), position) : false;
+    default: return false;
+    }
+}
+
+void GameplayState::setInputEnabled(bool enabled)
+{
+    _inputEnabled = enabled;
+}
+
+void GameplayState::setSimulationEnabled(bool enabled)
+{
+    _simulationEnabled = enabled;
+}
+
+void GameplayState::configureMatch(const SandforgeMatchSetup& setup)
+{
+    _world.setMatchSetup(setup);
+}
+
+SandforgeWorld& GameplayState::getWorld()
+{
+    return _world;
+}
+
+const SandforgeWorld& GameplayState::getWorld() const
+{
+    return _world;
+}
+
+void GameplayState::applyWorldSnapshot(const SandforgeWorldSnapshot& snapshot)
+{
+    _world.applySnapshot(snapshot);
+    _statusText = _world.getStatusText();
+}
+
 bool GameplayState::cancelSelectedProduction()
 {
     if (_selectionKind == SandforgeSelectionKind::HQ)
     {
-        return _world.cancelLastProduction(1, SandforgeBuildingType::HQ);
+        if (isRemoteClientControlled())
+        {
+            _multiplayerSession->sendCancelProductionCommand(0, SandforgeBuildingType::HQ);
+            _statusText = "Cancel request sent to host.";
+            return true;
+        }
+        return _world.cancelLastProduction(_localPlayerId, SandforgeBuildingType::HQ);
     }
     if (_selectionKind == SandforgeSelectionKind::Barracks)
     {
         if (_selectedBuildingId != 0)
         {
-            return _world.cancelLastProduction(1, _selectedBuildingId);
+            if (isRemoteClientControlled())
+            {
+                _multiplayerSession->sendCancelProductionCommand(_selectedBuildingId, SandforgeBuildingType::Barracks);
+                _statusText = "Cancel request sent to host.";
+                return true;
+            }
+            return _world.cancelLastProduction(_localPlayerId, _selectedBuildingId);
         }
     }
     if (_selectionKind == SandforgeSelectionKind::Factory)
     {
         if (_selectedBuildingId != 0)
         {
-            return _world.cancelLastProduction(1, _selectedBuildingId);
+            if (isRemoteClientControlled())
+            {
+                _multiplayerSession->sendCancelProductionCommand(_selectedBuildingId, SandforgeBuildingType::Factory);
+                _statusText = "Cancel request sent to host.";
+                return true;
+            }
+            return _world.cancelLastProduction(_localPlayerId, _selectedBuildingId);
         }
     }
 
@@ -631,185 +771,7 @@ void GameplayState::renderStaticArt()
 
 void GameplayState::renderEffects()
 {
-    if (_friendlySelectionRing == nullptr)
-    {
-        return;
-    }
-
-    if (_selectionKind == SandforgeSelectionKind::Unit)
-    {
-        const SandforgeUnit* unit = getSelectedUnit();
-        if (unit != nullptr)
-        {
-            const vec2 size = SandforgeDatabase::getUnit(unit->unitType).visuals.spriteSize;
-            _friendlySelectionRing->SetPosition(unit->position.x - (size.x * 0.7f), unit->position.y - (size.y * 0.7f));
-            _friendlySelectionRing->SetScale(size * 1.4f);
-            _friendlySelectionRing->SetDepth(-0.03f);
-            _friendlySelectionRing->Draw();
-
-            if (_rallyGuideDot != nullptr)
-            {
-                _rallyGuideDot->SetPosition(unit->moveTarget.x - 9.0f, unit->moveTarget.y - 9.0f);
-                _rallyGuideDot->SetDepth(0.09f);
-                _rallyGuideDot->Draw();
-            }
-        }
-    }
-
-    if (_selectionKind == SandforgeSelectionKind::Node && _selectedNodeIndex >= 0 && _selectedNodeIndex < static_cast<int>(_world.getNodes().size()))
-    {
-        const SandforgeResourceNode& node = _world.getNodes()[_selectedNodeIndex];
-        _friendlySelectionRing->SetPosition(node.position.x - 46.0f, node.position.y - 46.0f);
-        _friendlySelectionRing->SetScale(vec2(92.0f, 92.0f));
-        _friendlySelectionRing->SetDepth(-0.03f);
-        _friendlySelectionRing->Draw();
-    }
-
-    if (_selectionKind == SandforgeSelectionKind::HQ)
-    {
-        const SandforgeBuilding* hq = _world.findPrimaryBuilding(1, SandforgeBuildingType::HQ);
-        if (hq != nullptr)
-        {
-            _friendlySelectionRing->SetPosition(hq->position.x - 58.0f, hq->position.y - 58.0f);
-            _friendlySelectionRing->SetScale(vec2(116.0f, 116.0f));
-            _friendlySelectionRing->SetDepth(-0.03f);
-            _friendlySelectionRing->Draw();
-        }
-    }
-
-    if (_selectionKind == SandforgeSelectionKind::Barracks)
-    {
-        const SandforgeBuilding* barracks = getSelectedBuilding();
-        if (barracks != nullptr)
-        {
-            _friendlySelectionRing->SetPosition(barracks->position.x - 50.0f, barracks->position.y - 50.0f);
-            _friendlySelectionRing->SetScale(vec2(100.0f, 100.0f));
-            _friendlySelectionRing->SetDepth(-0.03f);
-            _friendlySelectionRing->Draw();
-        }
-    }
-
-    if (_selectionKind == SandforgeSelectionKind::Factory)
-    {
-        const SandforgeBuilding* factory = getSelectedBuilding();
-        if (factory != nullptr)
-        {
-            _friendlySelectionRing->SetPosition(factory->position.x - 54.0f, factory->position.y - 54.0f);
-            _friendlySelectionRing->SetScale(vec2(108.0f, 108.0f));
-            _friendlySelectionRing->SetDepth(-0.03f);
-            _friendlySelectionRing->Draw();
-        }
-    }
-
-    if (_selectionKind == SandforgeSelectionKind::NodeHub)
-    {
-        for (const SandforgeBuilding& building : _world.getBuildings())
-        {
-            if (!building.alive || building.ownerId != 1 || building.buildingType != SandforgeBuildingType::NodeHub)
-            {
-                continue;
-            }
-
-            _friendlySelectionRing->SetPosition(building.position.x - 46.0f, building.position.y - 46.0f);
-            _friendlySelectionRing->SetScale(vec2(92.0f, 92.0f));
-            _friendlySelectionRing->SetDepth(-0.03f);
-            _friendlySelectionRing->Draw();
-            break;
-        }
-    }
-
-    if (_selectionKind == SandforgeSelectionKind::DefenseTower)
-    {
-        for (const SandforgeBuilding& building : _world.getBuildings())
-        {
-            if (!building.alive || building.ownerId != 1 || building.buildingType != SandforgeBuildingType::DefenseTower)
-            {
-                continue;
-            }
-
-            _friendlySelectionRing->SetPosition(building.position.x - 44.0f, building.position.y - 44.0f);
-            _friendlySelectionRing->SetScale(vec2(88.0f, 88.0f));
-            _friendlySelectionRing->SetDepth(-0.03f);
-            _friendlySelectionRing->Draw();
-            break;
-        }
-    }
-
-    const SandforgeBuilding* enemyHQ = _world.findPrimaryBuilding(2, SandforgeBuildingType::HQ);
-    if (enemyHQ != nullptr && _enemySelectionRing != nullptr)
-    {
-        _enemySelectionRing->SetPosition(enemyHQ->position.x - 54.0f, enemyHQ->position.y - 54.0f);
-        _enemySelectionRing->SetDepth(-0.02f);
-        _enemySelectionRing->Draw();
-    }
-
-    for (const SandforgeCombatEffect& effect : _world.getCombatEffects())
-    {
-        if (_attackEffectSprite == nullptr)
-        {
-            break;
-        }
-
-        const vec2 start(effect.from.x, effect.from.y);
-        const vec2 end(effect.to.x, effect.to.y);
-        const vec2 delta = end - start;
-        const float distance = glm::length(delta);
-        if (distance <= 1.0f)
-        {
-            continue;
-        }
-
-        const vec2 direction = delta / distance;
-        const int markerCount = (std::min)(4, (std::max)(2, static_cast<int>(distance / 48.0f)));
-        for (int index = 0; index < markerCount; ++index)
-        {
-            const float t = static_cast<float>(index + 1) / static_cast<float>(markerCount + 1);
-            const vec2 point = start + (direction * distance * t);
-            _attackEffectSprite->SetPosition(point.x - 7.0f, point.y - 7.0f);
-            _attackEffectSprite->SetDepth(0.10f);
-            _attackEffectSprite->Draw();
-        }
-    }
-
-    for (const SandforgeResourceNode& node : _world.getNodes())
-    {
-        if (node.harvestingWorkerId == 0 || _rallyGuideDot == nullptr)
-        {
-            continue;
-        }
-
-        const float pulse = static_cast<float>(fmod(_world.getElapsedTime() * 2.0 + static_cast<double>(node.id), 1.0));
-        for (int index = 0; index < 3; ++index)
-        {
-            const float angle = pulse + (static_cast<float>(index) * 0.33f);
-            const float offsetX = cos(angle * glm::two_pi<float>()) * 18.0f;
-            const float offsetY = sin(angle * glm::two_pi<float>()) * 10.0f;
-            _rallyGuideDot->SetPosition(node.position.x + offsetX - 6.0f, node.position.y + offsetY + 20.0f);
-            _rallyGuideDot->SetScale(vec2(12.0f, 12.0f));
-            _rallyGuideDot->SetDepth(0.095f);
-            _rallyGuideDot->Draw();
-        }
-    }
-
-    if (_buildPreviewKind != SandforgeBuildPreviewKind::None && _buildPreviewSprite != nullptr)
-    {
-        const SandforgeBuildingType previewType = getPreviewBuildingType();
-        const vec2 previewSize = SandforgeDatabase::getBuilding(previewType).visuals.spriteSize;
-        _buildPreviewSprite->SetScale(previewSize);
-        _buildPreviewSprite->SetDepth(0.02f);
-        _buildPreviewSprite->Draw();
-
-        const vec2 previewCenter = _buildPreviewSprite->GetPosition() + (previewSize * 0.5f);
-        const bool valid = isBuildPreviewValid(previewCenter);
-        shared_ptr<Sprite> ring = valid ? _friendlySelectionRing : _enemySelectionRing;
-        if (ring != nullptr)
-        {
-            ring->SetPosition(previewCenter.x - (previewSize.x * 0.65f), previewCenter.y - (previewSize.y * 0.65f));
-            ring->SetScale(previewSize * 1.3f);
-            ring->SetDepth(-0.01f);
-            ring->Draw();
-        }
-    }
+    gWorldRenderer.renderEffects(*this);
 }
 
 void GameplayState::renderHudArt()
@@ -952,259 +914,7 @@ vector<string> GameplayState::buildSelectionDetails() const
 
 void GameplayState::handlePlayerInput(const InputState& input, const vec2& cursorScreenPosition, const vec2& cursorWorldPosition)
 {
-    if (input.wasKeyPressed(GLFW_KEY_R))
-    {
-        reset();
-        return;
-    }
-
-    if (_buildPreviewKind != SandforgeBuildPreviewKind::None && _buildPreviewSprite != nullptr)
-    {
-        const auto& definition = SandforgeDatabase::getBuilding(getPreviewBuildingType());
-        _buildPreviewSprite->SetPosition(cursorWorldPosition - (definition.visuals.spriteSize * 0.5f));
-    }
-
-    if (_world.getMatchResult().gameOver)
-    {
-        return;
-    }
-
-    if (input.wasMouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
-    {
-        if (handleHudClick(cursorScreenPosition, cursorWorldPosition))
-        {
-        }
-        else if (_buildPreviewKind != SandforgeBuildPreviewKind::None)
-        {
-            tryPlacePreviewAt(cursorWorldPosition);
-        }
-        else
-        {
-            selectObjectAt(cursorWorldPosition);
-        }
-    }
-    if (input.wasMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT))
-    {
-        if (_buildPreviewKind != SandforgeBuildPreviewKind::None)
-        {
-            cancelBuildPreview();
-        }
-        else if (_selectionKind == SandforgeSelectionKind::Unit)
-        {
-            _world.moveUnitTo(1, _selectedUnitId, sandforgeFromGlm(cursorWorldPosition));
-        }
-    }
-
-    if (input.wasKeyPressed(GLFW_KEY_1))
-    {
-        if (_selectionKind == SandforgeSelectionKind::HQ)
-        {
-            _world.queueProduction(1, SandforgeBuildingType::HQ, SandforgeUnitType::Worker);
-        }
-        else
-        {
-            _statusText = "Select Headquarters first.";
-        }
-    }
-    if (input.wasKeyPressed(GLFW_KEY_2))
-    {
-        if (_selectionKind == SandforgeSelectionKind::Barracks && _selectedBuildingId != 0)
-        {
-            _world.queueProduction(1, _selectedBuildingId, SandforgeUnitType::Soldier);
-        }
-        else
-        {
-            _statusText = "Select a Barracks first.";
-        }
-    }
-    if (input.wasKeyPressed(GLFW_KEY_3))
-    {
-        if (_selectionKind == SandforgeSelectionKind::Barracks && _selectedBuildingId != 0)
-        {
-            _world.queueProduction(1, _selectedBuildingId, SandforgeUnitType::Defender);
-        }
-        else
-        {
-            _statusText = "Select a Barracks first.";
-        }
-    }
-    if (input.wasKeyPressed(GLFW_KEY_6))
-    {
-        if (_selectionKind == SandforgeSelectionKind::Factory && _selectedBuildingId != 0)
-        {
-            _world.queueProduction(1, _selectedBuildingId, SandforgeUnitType::RangerMech);
-        }
-        else
-        {
-            _statusText = "Select a Factory first.";
-        }
-    }
-    if (input.wasKeyPressed(GLFW_KEY_7))
-    {
-        if (_selectionKind == SandforgeSelectionKind::Factory && _selectedBuildingId != 0)
-        {
-            _world.queueProduction(1, _selectedBuildingId, SandforgeUnitType::SiegeUnit);
-        }
-        else
-        {
-            _statusText = "Select a Factory first.";
-        }
-    }
-    if (input.wasKeyPressed(GLFW_KEY_F1))
-    {
-        _buildPreviewKind = SandforgeBuildPreviewKind::None;
-        setSelection(SandforgeSelectionKind::HQ);
-    }
-    if (input.wasKeyPressed(GLFW_KEY_F2))
-    {
-        _buildPreviewKind = SandforgeBuildPreviewKind::None;
-        for (const SandforgeBuilding& building : _world.getBuildings())
-        {
-            if (building.alive && building.ownerId == 1 && building.buildingType == SandforgeBuildingType::Barracks)
-            {
-                setBuildingSelection(SandforgeSelectionKind::Barracks, building.id);
-                break;
-            }
-        }
-    }
-    if (input.wasKeyPressed(GLFW_KEY_F3))
-    {
-        _buildPreviewKind = SandforgeBuildPreviewKind::None;
-        for (const SandforgeBuilding& building : _world.getBuildings())
-        {
-            if (building.alive && building.ownerId == 1 && building.buildingType == SandforgeBuildingType::Factory)
-            {
-                setBuildingSelection(SandforgeSelectionKind::Factory, building.id);
-                break;
-            }
-        }
-    }
-    if (input.wasKeyPressed(GLFW_KEY_TAB))
-    {
-        if (_selectionKind == SandforgeSelectionKind::HQ)
-        {
-            for (const SandforgeBuilding& building : _world.getBuildings())
-            {
-                if (building.alive && building.ownerId == 1 && building.buildingType == SandforgeBuildingType::Barracks)
-                {
-                    setBuildingSelection(SandforgeSelectionKind::Barracks, building.id);
-                    break;
-                }
-            }
-        }
-        else if (_selectionKind == SandforgeSelectionKind::Barracks)
-        {
-            bool advancedToNextBarracks = false;
-            bool foundCurrent = false;
-            for (const SandforgeBuilding& building : _world.getBuildings())
-            {
-                if (!building.alive || building.ownerId != 1 || building.buildingType != SandforgeBuildingType::Barracks)
-                {
-                    continue;
-                }
-
-                if (foundCurrent)
-                {
-                    setBuildingSelection(SandforgeSelectionKind::Barracks, building.id);
-                    advancedToNextBarracks = true;
-                    break;
-                }
-
-                if (building.id == _selectedBuildingId)
-                {
-                    foundCurrent = true;
-                }
-            }
-
-            if (!advancedToNextBarracks)
-            {
-                for (const SandforgeBuilding& building : _world.getBuildings())
-                {
-                    if (building.alive && building.ownerId == 1 && building.buildingType == SandforgeBuildingType::Factory)
-                    {
-                        setBuildingSelection(SandforgeSelectionKind::Factory, building.id);
-                        advancedToNextBarracks = true;
-                        break;
-                    }
-                }
-            }
-
-            if (!advancedToNextBarracks)
-            {
-                const int nodeCount = static_cast<int>(_world.getNodes().size());
-                if (nodeCount > 0) setSelection(SandforgeSelectionKind::Node, (_selectedNodeIndex + 1) % nodeCount);
-                else setSelection(SandforgeSelectionKind::HQ);
-            }
-        }
-        else if (_selectionKind == SandforgeSelectionKind::Factory)
-        {
-            const int nodeCount = static_cast<int>(_world.getNodes().size());
-            if (nodeCount > 0) setSelection(SandforgeSelectionKind::Node, (_selectedNodeIndex + 1) % nodeCount);
-        }
-        else setSelection(SandforgeSelectionKind::HQ);
-    }
-    if (input.wasKeyPressed(GLFW_KEY_W))
-    {
-        const int nodeIndex = findFriendlyResourceNodeIndex(_world, SandforgeResourceType::Metal);
-        if (nodeIndex >= 0)
-        {
-            const SandforgeEntityId selectedWorkerId = _selectedUnitId;
-            const SandforgeUnit* selectedUnit = _world.findUnitById(selectedWorkerId);
-            if (selectedUnit != nullptr && selectedUnit->unitType == SandforgeUnitType::Worker)
-            {
-                _world.assignWorkerToNode(1, selectedUnit->id, static_cast<size_t>(nodeIndex));
-                setSelection(SandforgeSelectionKind::Unit);
-                _selectedUnitId = selectedUnit->id;
-            }
-            else
-            {
-                _world.assignWorkerToNode(1, static_cast<size_t>(nodeIndex));
-                setSelection(SandforgeSelectionKind::Node, nodeIndex);
-            }
-        }
-    }
-    if (input.wasKeyPressed(GLFW_KEY_E))
-    {
-        const int nodeIndex = findFriendlyResourceNodeIndex(_world, SandforgeResourceType::Energy);
-        if (nodeIndex >= 0)
-        {
-            const SandforgeEntityId selectedWorkerId = _selectedUnitId;
-            const SandforgeUnit* selectedUnit = _world.findUnitById(selectedWorkerId);
-            if (selectedUnit != nullptr && selectedUnit->unitType == SandforgeUnitType::Worker)
-            {
-                _world.assignWorkerToNode(1, selectedUnit->id, static_cast<size_t>(nodeIndex));
-                setSelection(SandforgeSelectionKind::Unit);
-                _selectedUnitId = selectedUnit->id;
-            }
-            else
-            {
-                _world.assignWorkerToNode(1, static_cast<size_t>(nodeIndex));
-                setSelection(SandforgeSelectionKind::Node, nodeIndex);
-            }
-        }
-    }
-    if (input.wasKeyPressed(GLFW_KEY_4) &&
-        _selectionKind == SandforgeSelectionKind::Node &&
-        _selectedNodeIndex >= 0 &&
-        _selectedNodeIndex < static_cast<int>(_world.getNodes().size()))
-    {
-        beginBuildPreview(SandforgeBuildPreviewKind::NodeHub, cursorWorldPosition);
-    }
-    if (input.wasKeyPressed(GLFW_KEY_B) && _selectionKind == SandforgeSelectionKind::HQ)
-    {
-        beginBuildPreview(SandforgeBuildPreviewKind::Barracks, cursorWorldPosition);
-    }
-    if (input.wasKeyPressed(GLFW_KEY_F) && _selectionKind == SandforgeSelectionKind::HQ)
-    {
-        beginBuildPreview(SandforgeBuildPreviewKind::Factory, cursorWorldPosition);
-    }
-    if (input.wasKeyPressed(GLFW_KEY_8) &&
-        _selectionKind == SandforgeSelectionKind::Node &&
-        _selectedNodeIndex >= 0 &&
-        _selectedNodeIndex < static_cast<int>(_world.getNodes().size()))
-    {
-        beginBuildPreview(SandforgeBuildPreviewKind::DefenseTower, cursorWorldPosition);
-    }
+    gInputController.handlePlayerInput(*this, input, cursorScreenPosition, cursorWorldPosition);
 }
 
 bool GameplayState::selectObjectAt(const vec2& cursorWorldPosition)

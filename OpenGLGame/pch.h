@@ -27,12 +27,15 @@
 #include <thread>
 #include <filesystem>
 
+#include <winsock2.h>
+#include <ws2tcpip.h>
 #include <Windows.h>
 #include <cstring>
 #include <mmsystem.h>
 #include <time.h>
 
 #pragma comment(lib,"winmm.lib")
+#pragma comment(lib,"ws2_32.lib")
 
 using namespace std;
 

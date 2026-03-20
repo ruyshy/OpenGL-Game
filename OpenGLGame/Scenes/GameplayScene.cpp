@@ -1,7 +1,10 @@
 #include "pch.h"
 #include "GameplayScene.h"
 
+#include "GameContext.h"
 #include "MainWindow.h"
+#include "MultiplayerLobbyScene.h"
+#include "Network/SandforgeMultiplayerSession.h"
 #include "Shader.h"
 #include "Sprite.h"
 #include "TitleScene.h"
@@ -132,10 +135,21 @@ void main()
 void GameplayScene::onEnter(MainWindow& window, GameContext& context)
 {
     context.currentSceneName = "GameplayScene";
+    SandforgeMatchSetup matchSetup{};
+    if (context.multiplayerSession)
+    {
+        const SandforgeLobbyState& lobbyState = context.multiplayerSession->getLobbyState();
+        matchSetup.symmetricPlayers = true;
+        matchSetup.aiEnabled = false;
+        matchSetup.resourcePreset = lobbyState.resourcePreset;
+        matchSetup.workerPreset = lobbyState.workerPreset;
+    }
+    _state.configureMatch(matchSetup);
     _state.reset();
     _cameraX = 0.0f;
     _isPaused = false;
     _hoveredPauseAction = PauseMenuAction::None;
+    _snapshotBroadcastAccumulator = 0.0;
 
     glClearColor(0.08f, 0.11f, 0.14f, 1.0f);
     glEnable(GL_BLEND);
@@ -147,6 +161,29 @@ void GameplayScene::onEnter(MainWindow& window, GameContext& context)
     _textReady = !fontPath.empty() && _textEngine.initialize(fontPath, kHudFontSize);
     initializePauseArt();
     _state.setViewportSize(window.getScreenWidth(), window.getScreenHeight());
+
+    if (context.multiplayerSession)
+    {
+        _state.setMultiplayerSession(context.multiplayerSession);
+        const SandforgeLobbyState& lobbyState = context.multiplayerSession->getLobbyState();
+        _state.setLocalPlayerId(lobbyState.localPlayerId == 0 ? 1 : lobbyState.localPlayerId);
+        if (lobbyState.mode == SandforgeMultiplayerMode::Client)
+        {
+            _state.setInputEnabled(true);
+            _state.setSimulationEnabled(false);
+        }
+        else if (lobbyState.mode == SandforgeMultiplayerMode::Host)
+        {
+            _state.getWorld().setAiEnabled(false);
+        }
+    }
+
+    const float viewWidth = static_cast<float>(window.getScreenWidth());
+    const float maxCameraX = (std::max)(0.0f, kGameplayWorldWidth - viewWidth);
+    if (const SandforgeBuilding* localHq = _state.getWorld().findPrimaryBuilding(_state.getLocalPlayerId(), SandforgeBuildingType::HQ))
+    {
+        _cameraX = glm::clamp(localHq->position.x - (viewWidth * 0.5f), 0.0f, maxCameraX);
+    }
 
     onResize(window, context, window.getScreenWidth(), window.getScreenHeight());
 }
@@ -168,6 +205,56 @@ void GameplayScene::onExit(MainWindow& window, GameContext& context)
 
 void GameplayScene::update(MainWindow& window, GameContext& context, double deltaTime)
 {
+    if (context.multiplayerSession)
+    {
+        context.multiplayerSession->update();
+        const SandforgeLobbyState& lobbyState = context.multiplayerSession->getLobbyState();
+        if (lobbyState.connectionState == SandforgeMultiplayerConnectionState::Failed)
+        {
+            window.setScene(make_unique<MultiplayerLobbyScene>());
+            return;
+        }
+        if (lobbyState.mode == SandforgeMultiplayerMode::Client)
+        {
+            SandforgeWorldSnapshot snapshot;
+            if (context.multiplayerSession->consumeLatestSnapshot(snapshot))
+            {
+                _state.applyWorldSnapshot(snapshot);
+            }
+        }
+        else if (lobbyState.mode == SandforgeMultiplayerMode::Host)
+        {
+            for (const SandforgeNetCommand& command : context.multiplayerSession->consumePendingCommands())
+            {
+                SandforgeWorld& world = _state.getWorld();
+                switch (command.type)
+                {
+                case SandforgeNetCommandType::Produce:
+                    if (command.entityId != 0) world.queueProduction(2, command.entityId, command.unitType);
+                    else world.queueProduction(2, command.buildingType, command.unitType);
+                    break;
+                case SandforgeNetCommandType::AssignWorker:
+                    if (command.entityId != 0) world.assignWorkerToNode(2, command.entityId, command.nodeIndex);
+                    else world.assignWorkerToNode(2, command.nodeIndex);
+                    break;
+                case SandforgeNetCommandType::MoveUnit:
+                    world.moveUnitTo(2, command.entityId, command.position);
+                    break;
+                case SandforgeNetCommandType::Build:
+                    if (command.buildingType == SandforgeBuildingType::Barracks) world.buildBarracksAt(2, command.position);
+                    else if (command.buildingType == SandforgeBuildingType::Factory) world.buildFactoryAt(2, command.position);
+                    else if (command.buildingType == SandforgeBuildingType::NodeHub) world.buildNodeHubAt(2, command.nodeIndex, command.position);
+                    else if (command.buildingType == SandforgeBuildingType::DefenseTower) world.buildDefenseTowerAt(2, command.nodeIndex, command.position);
+                    break;
+                case SandforgeNetCommandType::CancelProduction:
+                    if (command.entityId != 0) world.cancelLastProduction(2, command.entityId);
+                    else world.cancelLastProduction(2, command.buildingType);
+                    break;
+                }
+            }
+        }
+    }
+
     const vec2 cursorScreenPosition = vec2(window.getOpenGLCursorPosition());
     _hoveredPauseAction = hitTestPauseMenu(cursorScreenPosition);
 
@@ -188,6 +275,10 @@ void GameplayScene::update(MainWindow& window, GameContext& context, double delt
             }
             else if (_hoveredPauseAction == PauseMenuAction::ReturnToTitle)
             {
+                if (context.multiplayerSession)
+                {
+                    context.multiplayerSession->disconnect();
+                }
                 window.setScene(make_unique<TitleScene>());
             }
         }
@@ -233,12 +324,24 @@ void GameplayScene::update(MainWindow& window, GameContext& context, double delt
     _state.update(context.input, deltaTime, cursorScreenPosition, cursorWorldPosition);
     context.currentSceneName = "GameplayScene | " + _state.getStatusText();
 
+    if (context.multiplayerSession)
+    {
+        const SandforgeLobbyState& lobbyState = context.multiplayerSession->getLobbyState();
+        if (lobbyState.mode == SandforgeMultiplayerMode::Host)
+        {
+            _snapshotBroadcastAccumulator += deltaTime;
+            if (_snapshotBroadcastAccumulator >= 0.10)
+            {
+                _snapshotBroadcastAccumulator = 0.0;
+                context.multiplayerSession->sendWorldSnapshot(_state.getWorld().buildSnapshot());
+            }
+        }
+    }
+
 }
 
 void GameplayScene::render(MainWindow& window, GameContext& context)
 {
-    (void)context;
-
     glClear(GL_COLOR_BUFFER_BIT);
     const float width = static_cast<float>(window.getScreenWidth());
     const float height = static_cast<float>(window.getScreenHeight());
@@ -295,6 +398,7 @@ void GameplayScene::render(MainWindow& window, GameContext& context)
         const vec2 resourceTextPos(922.0f * sx, 668.0f * sy);
         const vec2 commandTextPos(932.0f * sx, 124.0f * sy);
         const vec2 statusTextPos(302.0f * sx, 116.0f * sy);
+        const vec2 multiplayerTextPos(36.0f * sx, 690.0f * sy);
         const vec2 pausePanelPos((width * 0.5f) - (256.0f * uiScale), (height * 0.5f) - (160.0f * uiScale));
         const vec2 pauseHeaderPos(pausePanelPos + vec2(54.0f * uiScale, 232.0f * uiScale));
         const vec2 pauseResumePos(pausePanelPos + vec2(78.0f * uiScale, 150.0f * uiScale));
@@ -311,6 +415,33 @@ void GameplayScene::render(MainWindow& window, GameContext& context)
         renderTextLines(_textEngine, wrapTextToWidth(_textEngine, _state.buildTopBarText(), 0.50f * uiScale, kResourcePanelTextWidth * sx), resourceTextPos, 0.50f * uiScale, 18.0f * uiScale, kResourceColor);
         renderTextLines(_textEngine, _state.buildCommandHints(), commandTextPos, 0.48f * uiScale, kCommandLineGap * uiScale, kBodyColor);
         renderTextLines(_textEngine, wrapTextToWidth(_textEngine, _state.getStatusText(), 0.46f * uiScale, kInfoPanelTextWidth * sx), statusTextPos, 0.46f * uiScale, 18.0f * uiScale, kStatusColor);
+
+        if (context.multiplayerSession)
+        {
+            const SandforgeLobbyState& lobbyState = context.multiplayerSession->getLobbyState();
+            string multiplayerRole = lobbyState.mode == SandforgeMultiplayerMode::Host ? "Multiplayer Host" : "Multiplayer Client";
+            multiplayerRole += " | Player ";
+            multiplayerRole += to_string(_state.getLocalPlayerId());
+            multiplayerRole += " | ";
+            multiplayerRole += lobbyState.localPlayerName.empty() ? "Player" : lobbyState.localPlayerName;
+
+            string multiplayerState = lobbyState.remoteConnected ? "Remote linked" : "Waiting for peer";
+            multiplayerState += " | Peer ";
+            multiplayerState += lobbyState.remotePlayerName.empty() ? "Remote" : lobbyState.remotePlayerName;
+            multiplayerState += lobbyState.localReady ? " | Ready" : " | Not Ready";
+            multiplayerState += lobbyState.remoteReady ? " / Peer Ready" : " / Peer Waiting";
+            if (lobbyState.mode == SandforgeMultiplayerMode::Client)
+            {
+                multiplayerState += " | Host sync";
+            }
+            else
+            {
+                multiplayerState += " | Authority";
+            }
+
+            renderLine(multiplayerRole, multiplayerTextPos, 0.50f * uiScale, vec3(0.94f, 0.96f, 1.0f));
+            renderLine(multiplayerState, multiplayerTextPos - vec2(0.0f, 22.0f * uiScale), 0.44f * uiScale, vec3(0.76f, 0.84f, 0.96f));
+        }
 
         if (_state.hasCommandTooltip())
         {

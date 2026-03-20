@@ -52,6 +52,38 @@ SandforgeMatchResult SandforgeWorld::getMatchResult() const { return _matchResul
 double SandforgeWorld::getElapsedTime() const { return _elapsedTime; }
 string SandforgeWorld::getStatusText() const { return _statusText; }
 
+void SandforgeWorld::setMatchSetup(const SandforgeMatchSetup& setup) { _matchSetup = setup; }
+const SandforgeMatchSetup& SandforgeWorld::getMatchSetup() const { return _matchSetup; }
+void SandforgeWorld::setAiEnabled(bool enabled) { _aiEnabled = enabled; }
+bool SandforgeWorld::isAiEnabled() const { return _aiEnabled; }
+
+SandforgeWorldSnapshot SandforgeWorld::buildSnapshot() const
+{
+    SandforgeWorldSnapshot snapshot;
+    snapshot.units = _units;
+    snapshot.buildings = _buildings;
+    snapshot.nodes = _nodes;
+    snapshot.players = _players;
+    snapshot.matchResult = _matchResult;
+    snapshot.elapsedTime = _elapsedTime;
+    snapshot.statusText = _statusText;
+    snapshot.nextEntityId = _nextEntityId;
+    return snapshot;
+}
+
+void SandforgeWorld::applySnapshot(const SandforgeWorldSnapshot& snapshot)
+{
+    _units = snapshot.units;
+    _buildings = snapshot.buildings;
+    _nodes = snapshot.nodes;
+    _players = snapshot.players;
+    _matchResult = snapshot.matchResult;
+    _elapsedTime = snapshot.elapsedTime;
+    _statusText = snapshot.statusText;
+    _nextEntityId = snapshot.nextEntityId;
+    _combatEffects.clear();
+}
+
 void SandforgeWorld::reset()
 {
     _units.clear();
@@ -63,11 +95,22 @@ void SandforgeWorld::reset()
     _incomeAccumulator = 0.0;
     _enemyAiAccumulator = 0.0;
     _nextEntityId = 1;
+    _aiEnabled = _matchSetup.aiEnabled;
     _statusText = "Sandforge match started. Capture nodes and out-produce the enemy.";
 
     const auto& rules = SandforgeDatabase::getMatchRules();
-    _players[0] = { 1, rules.startMetal + 180, rules.startEnergy + 40, 0, false };
-    _players[1] = { 2, rules.startMetal - 80, rules.startEnergy - 20, 0, false };
+    if (_matchSetup.symmetricPlayers)
+    {
+        const int resourceBonusMetal = _matchSetup.resourcePreset == SandforgeStartResourcePreset::Rich ? 120 : 0;
+        const int resourceBonusEnergy = _matchSetup.resourcePreset == SandforgeStartResourcePreset::Rich ? 60 : 0;
+        _players[0] = { 1, rules.startMetal + resourceBonusMetal, rules.startEnergy + resourceBonusEnergy, 0, false };
+        _players[1] = { 2, rules.startMetal + resourceBonusMetal, rules.startEnergy + resourceBonusEnergy, 0, false };
+    }
+    else
+    {
+        _players[0] = { 1, rules.startMetal + 180, rules.startEnergy + 40, 0, false };
+        _players[1] = { 2, rules.startMetal - 80, rules.startEnergy - 20, 0, false };
+    }
 
     initializeMap();
     initializePlayers();
@@ -80,7 +123,10 @@ void SandforgeWorld::update(double deltaTime)
 
     _combatEffects.clear();
     _elapsedTime += deltaTime;
-    updateAi(deltaTime);
+    if (_aiEnabled)
+    {
+        updateAi(deltaTime);
+    }
     updateCapture(deltaTime);
     updateProduction(deltaTime);
     updateMovement(deltaTime);
@@ -575,7 +621,18 @@ void SandforgeWorld::initializePlayers()
         spawnBuilding(SandforgeBuildingType::HQ, playerId, hqPositions[index]);
 
         const auto& rules = SandforgeDatabase::getMatchRules();
-        const int startingWorkerCount = playerId == 1 ? rules.startingWorkerCount + 1 : rules.startingWorkerCount;
+        int startingWorkerCount = rules.startingWorkerCount;
+        if (_matchSetup.symmetricPlayers)
+        {
+            if (_matchSetup.workerPreset == SandforgeStartWorkerPreset::Expanded)
+            {
+                ++startingWorkerCount;
+            }
+        }
+        else if (playerId == 1)
+        {
+            ++startingWorkerCount;
+        }
         for (int workerIndex = 0; workerIndex < startingWorkerCount; ++workerIndex)
         {
             const float offsetX = playerId == 1 ? 40.0f * static_cast<float>(workerIndex) : -40.0f * static_cast<float>(workerIndex);

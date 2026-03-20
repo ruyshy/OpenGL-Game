@@ -90,11 +90,49 @@ struct SandforgeMatchResult
     SandforgeMatchEndReason reason = SandforgeMatchEndReason::None;
 };
 
+enum class SandforgeStartResourcePreset : uint8_t
+{
+    Standard = 0,
+    Rich = 1
+};
+
+enum class SandforgeStartWorkerPreset : uint8_t
+{
+    Standard = 0,
+    Expanded = 1
+};
+
+struct SandforgeMatchSetup
+{
+    bool symmetricPlayers = false;
+    bool aiEnabled = true;
+    SandforgeStartResourcePreset resourcePreset = SandforgeStartResourcePreset::Standard;
+    SandforgeStartWorkerPreset workerPreset = SandforgeStartWorkerPreset::Standard;
+};
+
+struct SandforgeWorldSnapshot
+{
+    vector<SandforgeUnit> units;
+    vector<SandforgeBuilding> buildings;
+    vector<SandforgeResourceNode> nodes;
+    array<SandforgePlayerState, 2> players{};
+    SandforgeMatchResult matchResult;
+    double elapsedTime = 0.0;
+    string statusText;
+    SandforgeEntityId nextEntityId = 1;
+};
+
 class SandforgeWorld
 {
 public:
     void reset();
     void update(double deltaTime);
+    void setMatchSetup(const SandforgeMatchSetup& setup);
+    const SandforgeMatchSetup& getMatchSetup() const;
+    void setAiEnabled(bool enabled);
+    bool isAiEnabled() const;
+    SandforgeWorldSnapshot buildSnapshot() const;
+    void applySnapshot(const SandforgeWorldSnapshot& snapshot);
 
     bool queueProduction(SandforgePlayerId playerId, SandforgeBuildingType buildingType, SandforgeUnitType unitType, bool repeat = false);
     bool queueProduction(SandforgePlayerId playerId, SandforgeEntityId buildingId, SandforgeUnitType unitType, bool repeat = false);
@@ -171,6 +209,8 @@ private:
     double _enemyAiAccumulator = 0.0;
     SandforgeEntityId _nextEntityId = 1;
     string _statusText = "Sandforge MVP match initialized.";
+    bool _aiEnabled = true;
+    SandforgeMatchSetup _matchSetup{};
 };
 
 #endif // !SANDFORGE_WORLD_H_

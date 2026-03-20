@@ -39,12 +39,12 @@ bool GameplayBuildPreviewController::tryPlacePreviewAt(GameplayState& state, con
 
     if (state._buildPreviewKind == SandforgeBuildPreviewKind::Barracks)
     {
-        placed = state._world.buildBarracksAt(1, position);
+        placed = state.requestBuildPlacement(state._buildPreviewKind, state._buildPreviewNodeIndex, position);
         if (placed)
         {
             for (auto it = state._world.getBuildings().rbegin(); it != state._world.getBuildings().rend(); ++it)
             {
-                if (it->alive && it->ownerId == 1 && it->buildingType == SandforgeBuildingType::Barracks)
+                if (it->alive && it->ownerId == state.getLocalPlayerId() && it->buildingType == SandforgeBuildingType::Barracks)
                 {
                     state.setBuildingSelection(SandforgeSelectionKind::Barracks, it->id);
                     break;
@@ -54,12 +54,12 @@ bool GameplayBuildPreviewController::tryPlacePreviewAt(GameplayState& state, con
     }
     else if (state._buildPreviewKind == SandforgeBuildPreviewKind::Factory)
     {
-        placed = state._world.buildFactoryAt(1, position);
+        placed = state.requestBuildPlacement(state._buildPreviewKind, state._buildPreviewNodeIndex, position);
         if (placed)
         {
             for (auto it = state._world.getBuildings().rbegin(); it != state._world.getBuildings().rend(); ++it)
             {
-                if (it->alive && it->ownerId == 1 && it->buildingType == SandforgeBuildingType::Factory)
+                if (it->alive && it->ownerId == state.getLocalPlayerId() && it->buildingType == SandforgeBuildingType::Factory)
                 {
                     state.setBuildingSelection(SandforgeSelectionKind::Factory, it->id);
                     break;
@@ -69,12 +69,12 @@ bool GameplayBuildPreviewController::tryPlacePreviewAt(GameplayState& state, con
     }
     else if (state._buildPreviewKind == SandforgeBuildPreviewKind::NodeHub && state._buildPreviewNodeIndex >= 0)
     {
-        placed = state._world.buildNodeHubAt(1, static_cast<size_t>(state._buildPreviewNodeIndex), position);
+        placed = state.requestBuildPlacement(state._buildPreviewKind, state._buildPreviewNodeIndex, position);
         if (placed) state.setSelection(SandforgeSelectionKind::NodeHub);
     }
     else if (state._buildPreviewKind == SandforgeBuildPreviewKind::DefenseTower && state._buildPreviewNodeIndex >= 0)
     {
-        placed = state._world.buildDefenseTowerAt(1, static_cast<size_t>(state._buildPreviewNodeIndex), position);
+        placed = state.requestBuildPlacement(state._buildPreviewKind, state._buildPreviewNodeIndex, position);
         if (placed) state.setSelection(SandforgeSelectionKind::DefenseTower);
     }
 
@@ -93,19 +93,19 @@ bool GameplayBuildPreviewController::isBuildPreviewValid(const GameplayState& st
 
     if (state._buildPreviewKind == SandforgeBuildPreviewKind::Barracks)
     {
-        return state._world.canPlaceBarracks(1, position);
+        return state._world.canPlaceBarracks(state.getLocalPlayerId(), position);
     }
     if (state._buildPreviewKind == SandforgeBuildPreviewKind::Factory)
     {
-        return state._world.canPlaceFactory(1, position);
+        return state._world.canPlaceFactory(state.getLocalPlayerId(), position);
     }
     if (state._buildPreviewKind == SandforgeBuildPreviewKind::NodeHub && state._buildPreviewNodeIndex >= 0)
     {
-        return state._world.canPlaceNodeHub(1, static_cast<size_t>(state._buildPreviewNodeIndex), position);
+        return state._world.canPlaceNodeHub(state.getLocalPlayerId(), static_cast<size_t>(state._buildPreviewNodeIndex), position);
     }
     if (state._buildPreviewKind == SandforgeBuildPreviewKind::DefenseTower && state._buildPreviewNodeIndex >= 0)
     {
-        return state._world.canPlaceDefenseTower(1, static_cast<size_t>(state._buildPreviewNodeIndex), position);
+        return state._world.canPlaceDefenseTower(state.getLocalPlayerId(), static_cast<size_t>(state._buildPreviewNodeIndex), position);
     }
 
     return false;

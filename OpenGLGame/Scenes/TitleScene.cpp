@@ -3,6 +3,7 @@
 
 #include "GameplayScene.h"
 #include "HowToPlayScene.h"
+#include "MultiplayerLobbyScene.h"
 #include "MainWindow.h"
 #include "Shader.h"
 #include "Sprite.h"
@@ -307,7 +308,8 @@ void TitleScene::activateButton(MainWindow& window)
 
     if (_selectedButton == TitleMenuButton::MultiPlayer)
     {
-        _menuStatus = L"\uBA40\uD2F0\uD50C\uB808\uC774\uB294 \uC544\uC9C1 \uC900\uBE44 \uC911\uC785\uB2C8\uB2E4.";
+        _menuStatus = L"\uBA40\uD2F0\uD50C\uB808\uC774 \uB85C\uBE44\uB85C \uC774\uB3D9\uD569\uB2C8\uB2E4.";
+        window.setScene(make_unique<MultiplayerLobbyScene>());
         return;
     }
 

@@ -178,8 +178,8 @@ void GameplayHudRenderer::renderHudArt(GameplayState& state) const
         ++minimapIndex;
     };
 
-    const SandforgeBuilding* friendlyHQ = state._world.findPrimaryBuilding(1, SandforgeBuildingType::HQ);
-    const SandforgeBuilding* enemyHQ = state._world.findPrimaryBuilding(2, SandforgeBuildingType::HQ);
+    const SandforgeBuilding* friendlyHQ = state._world.findPrimaryBuilding(state.getLocalPlayerId(), SandforgeBuildingType::HQ);
+    const SandforgeBuilding* enemyHQ = state._world.findPrimaryBuilding(state.getEnemyPlayerId(), SandforgeBuildingType::HQ);
     if (friendlyHQ != nullptr) drawBlip(friendlyHQ->position, uniformSize(20.0f, 20.0f));
     if (enemyHQ != nullptr) drawBlip(enemyHQ->position, uniformSize(22.0f, 22.0f));
     for (const SandforgeResourceNode& node : nodes)
@@ -198,7 +198,7 @@ void GameplayHudRenderer::renderHudArt(GameplayState& state) const
     }
     else if (state._selectionKind == SandforgeSelectionKind::HQ)
     {
-        const SandforgeBuilding* building = state._world.findPrimaryBuilding(1, SandforgeBuildingType::HQ);
+        const SandforgeBuilding* building = state._world.findPrimaryBuilding(state.getLocalPlayerId(), SandforgeBuildingType::HQ);
         if (building != nullptr && building->maxHp > 0.0f) healthRatio = building->hp / building->maxHp;
     }
     else if (state._selectionKind == SandforgeSelectionKind::Barracks)
@@ -232,7 +232,7 @@ void GameplayHudRenderer::renderHudArt(GameplayState& state) const
     const SandforgeBuilding* selectedBuilding = nullptr;
     if (state._selectionKind == SandforgeSelectionKind::HQ)
     {
-        selectedBuilding = state._world.findPrimaryBuilding(1, SandforgeBuildingType::HQ);
+        selectedBuilding = state._world.findPrimaryBuilding(state.getLocalPlayerId(), SandforgeBuildingType::HQ);
     }
     else if (state._selectionKind == SandforgeSelectionKind::Barracks || state._selectionKind == SandforgeSelectionKind::Factory)
     {
@@ -349,7 +349,7 @@ vector<GameplayState::HudCommandButton> GameplayHudRenderer::buildHudCommandButt
     {
         const bool owned = state._selectedNodeIndex >= 0 &&
             state._selectedNodeIndex < static_cast<int>(state._world.getNodes().size()) &&
-            state._world.getNodes()[state._selectedNodeIndex].ownerId == 1;
+            state._world.getNodes()[state._selectedNodeIndex].ownerId == state.getLocalPlayerId();
         pushButton(GLFW_KEY_4, "NodeHub", owned);
         pushButton(GLFW_KEY_8, "Tower", owned);
     }
@@ -403,7 +403,7 @@ bool GameplayHudRenderer::activateHudCommand(GameplayState& state, int hotkey, c
     {
         if (state._selectionKind == SandforgeSelectionKind::HQ)
         {
-            return state._world.queueProduction(1, SandforgeBuildingType::HQ, SandforgeUnitType::Worker);
+            return state.requestQueueProduction(SandforgeBuildingType::HQ, SandforgeUnitType::Worker);
         }
         state._statusText = "Select Headquarters to train Workers.";
         return false;
@@ -412,7 +412,7 @@ bool GameplayHudRenderer::activateHudCommand(GameplayState& state, int hotkey, c
     {
         if (state._selectionKind == SandforgeSelectionKind::Barracks && state._selectedBuildingId != 0)
         {
-            return state._world.queueProduction(1, state._selectedBuildingId, SandforgeUnitType::Soldier);
+            return state.requestQueueProduction(state._selectedBuildingId, SandforgeBuildingType::Barracks, SandforgeUnitType::Soldier);
         }
         state._statusText = "Select a Barracks to train Soldiers.";
         return false;
@@ -421,7 +421,7 @@ bool GameplayHudRenderer::activateHudCommand(GameplayState& state, int hotkey, c
     {
         if (state._selectionKind == SandforgeSelectionKind::Barracks && state._selectedBuildingId != 0)
         {
-            return state._world.queueProduction(1, state._selectedBuildingId, SandforgeUnitType::Defender);
+            return state.requestQueueProduction(state._selectedBuildingId, SandforgeBuildingType::Barracks, SandforgeUnitType::Defender);
         }
         state._statusText = "Select a Barracks to train Defenders.";
         return false;
@@ -445,7 +445,7 @@ bool GameplayHudRenderer::activateHudCommand(GameplayState& state, int hotkey, c
     {
         if (state._selectionKind == SandforgeSelectionKind::Factory && state._selectedBuildingId != 0)
         {
-            return state._world.queueProduction(1, state._selectedBuildingId, SandforgeUnitType::RangerMech);
+            return state.requestQueueProduction(state._selectedBuildingId, SandforgeBuildingType::Factory, SandforgeUnitType::RangerMech);
         }
         state._statusText = "Select a Factory to train Mechs.";
         return false;
@@ -454,7 +454,7 @@ bool GameplayHudRenderer::activateHudCommand(GameplayState& state, int hotkey, c
     {
         if (state._selectionKind == SandforgeSelectionKind::Factory && state._selectedBuildingId != 0)
         {
-            return state._world.queueProduction(1, state._selectedBuildingId, SandforgeUnitType::SiegeUnit);
+            return state.requestQueueProduction(state._selectedBuildingId, SandforgeBuildingType::Factory, SandforgeUnitType::SiegeUnit);
         }
         state._statusText = "Select a Factory to train Siege Units.";
         return false;

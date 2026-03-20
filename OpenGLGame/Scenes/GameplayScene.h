@@ -43,6 +43,7 @@ private:
     float _cameraX = 0.0f;
     bool _isPaused = false;
     PauseMenuAction _hoveredPauseAction = PauseMenuAction::None;
+    double _snapshotBroadcastAccumulator = 0.0;
 };
 
 #endif // !GAMEPLAYSCENE_H_

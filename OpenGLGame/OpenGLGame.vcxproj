@@ -85,7 +85,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)App;$(ProjectDir)Scenes;$(ProjectDir)Rendering;$(ProjectDir)Text;$(ProjectDir)Core;$(ProjectDir)Data;$(ProjectDir)World;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)App;$(ProjectDir)Scenes;$(ProjectDir)Rendering;$(ProjectDir)Text;$(ProjectDir)Core;$(ProjectDir)Data;$(ProjectDir)World;$(ProjectDir)Network;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -101,7 +101,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)App;$(ProjectDir)Scenes;$(ProjectDir)Rendering;$(ProjectDir)Text;$(ProjectDir)Core;$(ProjectDir)Data;$(ProjectDir)World;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)App;$(ProjectDir)Scenes;$(ProjectDir)Rendering;$(ProjectDir)Text;$(ProjectDir)Core;$(ProjectDir)Data;$(ProjectDir)World;$(ProjectDir)Network;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -117,7 +117,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)App;$(ProjectDir)Scenes;$(ProjectDir)Rendering;$(ProjectDir)Text;$(ProjectDir)Core;$(ProjectDir)Data;$(ProjectDir)World;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)App;$(ProjectDir)Scenes;$(ProjectDir)Rendering;$(ProjectDir)Text;$(ProjectDir)Core;$(ProjectDir)Data;$(ProjectDir)World;$(ProjectDir)Network;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -139,7 +139,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)App;$(ProjectDir)Scenes;$(ProjectDir)Rendering;$(ProjectDir)Text;$(ProjectDir)Core;$(ProjectDir)Data;$(ProjectDir)World;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)App;$(ProjectDir)Scenes;$(ProjectDir)Rendering;$(ProjectDir)Text;$(ProjectDir)Core;$(ProjectDir)Data;$(ProjectDir)World;$(ProjectDir)Network;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -156,6 +156,8 @@
     <ClCompile Include="App\MainWindow.cpp" />
     <ClCompile Include="App\OpenGLWindow.cpp" />
     <ClCompile Include="Data\SandforgeDatabase.cpp" />
+    <ClCompile Include="Network\SandforgeMultiplayerSession.cpp" />
+    <ClCompile Include="Network\SandforgePacketBuffer.cpp" />
     <ClCompile Include="Rendering\Animation2D.cpp" />
     <ClCompile Include="Rendering\glad.cpp" />
     <ClCompile Include="Rendering\ResourceManager.cpp" />
@@ -166,9 +168,12 @@
     <ClCompile Include="Scenes\GameplayScene.cpp" />
     <ClCompile Include="Scenes\GameplayBuildPreviewController.cpp" />
     <ClCompile Include="Scenes\GameplayHudRenderer.cpp" />
+    <ClCompile Include="Scenes\GameplayInputController.cpp" />
     <ClCompile Include="Scenes\GameplaySelectionController.cpp" />
     <ClCompile Include="Scenes\GameplayState.cpp" />
+    <ClCompile Include="Scenes\GameplayWorldRenderer.cpp" />
     <ClCompile Include="Scenes\HowToPlayScene.cpp" />
+    <ClCompile Include="Scenes\MultiplayerLobbyScene.cpp" />
     <ClCompile Include="Scenes\TitleScene.cpp" />
     <ClCompile Include="Text\Encoding.cpp" />
     <ClCompile Include="Text\FontAsset.cpp" />
@@ -187,6 +192,9 @@
     <ClInclude Include="App\OpenGLWindow.h" />
     <ClInclude Include="Core\SandforgeTypes.h" />
     <ClInclude Include="Data\SandforgeDatabase.h" />
+    <ClInclude Include="Network\SandforgeMultiplayerSession.h" />
+    <ClInclude Include="Network\SandforgePacketBuffer.h" />
+    <ClInclude Include="Network\SandforgePacketTypes.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Rendering\Animation2D.h" />
     <ClInclude Include="Rendering\ResourceManager.h" />
@@ -199,10 +207,13 @@
     <ClInclude Include="Scenes\GameScene.h" />
     <ClInclude Include="Scenes\GameplayBuildPreviewController.h" />
     <ClInclude Include="Scenes\GameplayHudRenderer.h" />
+    <ClInclude Include="Scenes\GameplayInputController.h" />
     <ClInclude Include="Scenes\GameplayScene.h" />
     <ClInclude Include="Scenes\GameplaySelectionController.h" />
     <ClInclude Include="Scenes\GameplayState.h" />
+    <ClInclude Include="Scenes\GameplayWorldRenderer.h" />
     <ClInclude Include="Scenes\HowToPlayScene.h" />
+    <ClInclude Include="Scenes\MultiplayerLobbyScene.h" />
     <ClInclude Include="Scenes\TitleScene.h" />
     <ClInclude Include="Text\Encoding.h" />
     <ClInclude Include="Text\FontAsset.h" />

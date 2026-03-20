@@ -12,9 +12,12 @@
 class InputState;
 class Sprite;
 class Shader;
+class SandforgeMultiplayerSession;
 class GameplayHudRenderer;
 class GameplaySelectionController;
 class GameplayBuildPreviewController;
+class GameplayInputController;
+class GameplayWorldRenderer;
 
 enum class SandforgeSelectionKind
 {
@@ -72,11 +75,30 @@ public:
     vec2 getCommandTooltipPosition() const;
     bool cancelSelectedProduction();
     bool isMatchOver() const;
+    void setLocalPlayerId(SandforgePlayerId playerId);
+    SandforgePlayerId getLocalPlayerId() const;
+    SandforgePlayerId getEnemyPlayerId() const;
+    void setMultiplayerSession(const shared_ptr<SandforgeMultiplayerSession>& session);
+    bool isRemoteClientControlled() const;
+    bool requestQueueProduction(SandforgeBuildingType buildingType, SandforgeUnitType unitType);
+    bool requestQueueProduction(SandforgeEntityId buildingId, SandforgeBuildingType buildingType, SandforgeUnitType unitType);
+    bool requestAssignWorkerToNode(size_t nodeIndex);
+    bool requestAssignWorkerToNode(SandforgeEntityId workerId, size_t nodeIndex);
+    bool requestMoveUnit(SandforgeEntityId unitId, const SandforgeVec2& position);
+    bool requestBuildPlacement(SandforgeBuildPreviewKind kind, int nodeIndex, const SandforgeVec2& position);
+    void setInputEnabled(bool enabled);
+    void setSimulationEnabled(bool enabled);
+    void configureMatch(const SandforgeMatchSetup& setup);
+    SandforgeWorld& getWorld();
+    const SandforgeWorld& getWorld() const;
+    void applyWorldSnapshot(const SandforgeWorldSnapshot& snapshot);
 
 private:
     friend class GameplayHudRenderer;
     friend class GameplaySelectionController;
     friend class GameplayBuildPreviewController;
+    friend class GameplayInputController;
+    friend class GameplayWorldRenderer;
 
     void initializeRenderer();
     void initializeStaticArt();
@@ -149,6 +171,10 @@ private:
     vec2 _cursorScreenPosition = vec2(0.0f, 0.0f);
     vec2 _cursorWorldPosition = vec2(0.0f, 0.0f);
     vec2 _uiViewportSize = vec2(1280.0f, 720.0f);
+    bool _inputEnabled = true;
+    bool _simulationEnabled = true;
+    SandforgePlayerId _localPlayerId = 1;
+    shared_ptr<SandforgeMultiplayerSession> _multiplayerSession;
 };
 
 #endif // !GAMEPLAYSTATE_H_
