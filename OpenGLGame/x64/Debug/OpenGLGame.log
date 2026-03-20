@@ -1,3 +1,24 @@
-﻿  ResourceManager.cpp
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
-  OpenGLGame.vcxproj -> D:\Project\OpenGL-Game\x64\Debug\OpenGLGame.exe
+﻿  pch.cpp
+C:\Project\OpenGLGame\Library\include\GLFW\glfw3.h(3235,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+  (소스 파일 'pch.cpp'을(를) 컴파일하는 중)
+  
+  Animation2D.cpp
+  Encoding.cpp
+  glad.cpp
+  main.cpp
+  MainWindow.cpp
+  OpenGLWindow.cpp
+  ResourceManager.cpp
+  Sprite.cpp
+  stb_image.cpp
+  TextRenderer.cpp
+  Texture2D.cpp
+C:\Project\OpenGLGame\OpenGLGame\Texture2D.cpp(60,10): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 '/Texture2D.cpp'을(를) 컴파일하는 중)
+  
+  VertexBuffer2D.cpp
+  코드를 생성하고 있습니다...
+LINK : warning LNK4098: 'MSVCRT' defaultlib가 다른 라이브러리와 충돌합니다. /NODEFAULTLIB:library를 사용하십시오.
+  OpenGLGame.vcxproj -> C:\Project\OpenGLGame\x64\Debug\OpenGLGame.exe
+  'pwsh.exe'은(는) 내부 또는 외부 명령, 실행할 수 있는 프로그램, 또는
+  배치 파일이 아닙니다.

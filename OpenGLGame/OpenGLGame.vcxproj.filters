@@ -30,6 +30,9 @@
     <ClCompile Include="ResourceManager.cpp">
       <Filter>Management</Filter>
     </ClCompile>
+    <ClCompile Include="TextRenderer.cpp">
+      <Filter>OpenGL\Text</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -63,6 +66,9 @@
     <ClInclude Include="ResourceManager.h">
       <Filter>Management</Filter>
     </ClInclude>
+    <ClInclude Include="TextRenderer.h">
+      <Filter>OpenGL\Text</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="OpenGL">
@@ -94,6 +100,9 @@
     </Filter>
     <Filter Include="Management">
       <UniqueIdentifier>{99d1df4a-c511-42ce-8850-ae1e57c42dad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenGL\Text">
+      <UniqueIdentifier>{748f22ca-e79a-4c61-b42c-4f46cf4ea7c8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
