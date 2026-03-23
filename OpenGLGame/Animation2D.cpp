@@ -4,9 +4,37 @@
 #include "Texture2D.h"
 #include "VertexBuffer2D.h"
 
+#include <filesystem>
+
 namespace
 {
 	const vec4 kEmptyFrame(0.0f, 0.0f, 1.0f, 1.0f);
+
+	std::string TrimLine(const std::string& line)
+	{
+		const auto first = line.find_first_not_of(" \t\r");
+		if (first == std::string::npos)
+		{
+			return std::string();
+		}
+
+		const auto last = line.find_last_not_of(" \t\r");
+		return line.substr(first, last - first + 1);
+	}
+
+	std::shared_ptr<Texture2D> CreateManagedTexture(const std::string& filename)
+	{
+		return std::shared_ptr<Texture2D>(
+			new Texture2D(TextureSystem::Generate(filename.c_str())),
+			[](Texture2D* texture)
+			{
+				if (texture != nullptr)
+				{
+					TextureSystem::Delete(*texture);
+					delete texture;
+				}
+			});
+	}
 }
 
 Animation2D::Animation2D(const char* filename)
@@ -27,6 +55,7 @@ bool Animation2D::LoadFromFile(const char* filename)
 bool Animation2D::LoadFromFile(const std::string& filename)
 {
 	mFrames.clear();
+	mImageFrames.clear();
 	Reset();
 
 	if (filename.empty())
@@ -42,7 +71,8 @@ bool Animation2D::LoadFromFile(const std::string& filename)
 		return false;
 	}
 
-	const bool loaded = LoadFromStream(file);
+	const std::string baseDirectory = std::filesystem::path(filename).parent_path().string();
+	const bool loaded = LoadFromStream(file, baseDirectory);
 	if (!loaded)
 	{
 		std::cout << "ERROR::ANIMATION2D::NO_VALID_FRAMES: " << filename << std::endl;
@@ -54,12 +84,34 @@ bool Animation2D::LoadFromFile(const std::string& filename)
 void Animation2D::SetFrames(const std::vector<vec4>& newFrames)
 {
 	mFrames = newFrames;
+	mImageFrames.clear();
 	Reset();
+}
+
+bool Animation2D::SetImageFrames(const std::vector<std::string>& imageFilenames)
+{
+	mFrames.clear();
+	mImageFrames.clear();
+	Reset();
+
+	for (const std::string& imageFilename : imageFilenames)
+	{
+		std::shared_ptr<Texture2D> texture;
+		if (!TryLoadImageFrame(imageFilename, std::string(), texture))
+		{
+			mImageFrames.clear();
+			return false;
+		}
+
+		mImageFrames.push_back(texture);
+	}
+
+	return !mImageFrames.empty();
 }
 
 void Animation2D::Update(double deltaTime)
 {
-	if (mPaused || mFinished || mFrames.size() <= 1)
+	if (mPaused || mFinished || GetFrameCount() <= 1)
 	{
 		return;
 	}
@@ -82,6 +134,13 @@ void Animation2D::Apply(Texture2D& spriteTexture, VertexBufferObject2D& rectangl
 {
 	if (IsEmpty())
 	{
+		return;
+	}
+
+	if (!mImageFrames.empty())
+	{
+		spriteTexture = *mImageFrames[mCurrentFrameIndex];
+		UploadUV(kEmptyFrame, rectangle);
 		return;
 	}
 
@@ -151,7 +210,7 @@ void Animation2D::SetCurrentFrame(int frameIndex)
 		return;
 	}
 
-	mCurrentFrameIndex = std::clamp(frameIndex, 0, static_cast<int>(mFrames.size()) - 1);
+	mCurrentFrameIndex = std::clamp(frameIndex, 0, GetFrameCount() - 1);
 	mAnimationCursor = 0.0;
 	mFinished = false;
 }
@@ -173,7 +232,7 @@ bool Animation2D::IsLooping() const
 
 bool Animation2D::IsEmpty() const
 {
-	return mFrames.empty();
+	return mFrames.empty() && mImageFrames.empty();
 }
 
 int Animation2D::GetCurrentFrameIndex() const
@@ -183,7 +242,9 @@ int Animation2D::GetCurrentFrameIndex() const
 
 int Animation2D::GetFrameCount() const
 {
-	return static_cast<int>(mFrames.size());
+	return !mImageFrames.empty()
+		? static_cast<int>(mImageFrames.size())
+		: static_cast<int>(mFrames.size());
 }
 
 float Animation2D::GetAnimationSpeed() const
@@ -193,7 +254,7 @@ float Animation2D::GetAnimationSpeed() const
 
 const vec4& Animation2D::GetCurrentFrame() const
 {
-	return IsEmpty() ? kEmptyFrame : mFrames[mCurrentFrameIndex];
+	return mFrames.empty() ? kEmptyFrame : mFrames[mCurrentFrameIndex];
 }
 
 const std::vector<vec4>& Animation2D::GetFrames() const
@@ -211,7 +272,7 @@ void Animation2D::set_animation_speed(float newspeed)
 	SetAnimationSpeed(newspeed);
 }
 
-bool Animation2D::LoadFromStream(std::istream& stream)
+bool Animation2D::LoadFromStream(std::istream& stream, const std::string& baseDirectory)
 {
 	std::string line;
 	while (std::getline(stream, line))
@@ -219,25 +280,39 @@ bool Animation2D::LoadFromStream(std::istream& stream)
 		vec4 frame;
 		if (TryParseFrameLine(line, frame))
 		{
+			if (!mImageFrames.empty())
+			{
+				return false;
+			}
+
 			mFrames.push_back(frame);
+			continue;
+		}
+
+		std::shared_ptr<Texture2D> texture;
+		if (TryLoadImageFrame(line, baseDirectory, texture))
+		{
+			if (!mFrames.empty())
+			{
+				return false;
+			}
+
+			mImageFrames.push_back(texture);
 		}
 	}
 
-	return !mFrames.empty();
+	return !mFrames.empty() || !mImageFrames.empty();
 }
 
 bool Animation2D::TryParseFrameLine(const std::string& line, vec4& outFrame) const
 {
-	std::string trimmed = line;
-	trimmed.erase(std::remove(trimmed.begin(), trimmed.end(), '\r'), trimmed.end());
-
-	const auto first = trimmed.find_first_not_of(" \t");
-	if (first == std::string::npos)
+	const std::string trimmed = TrimLine(line);
+	if (trimmed.empty())
 	{
 		return false;
 	}
 
-	if (trimmed[first] == '#')
+	if (trimmed[0] == '#')
 	{
 		return false;
 	}
@@ -273,14 +348,43 @@ bool Animation2D::TryParseFrameLine(const std::string& line, vec4& outFrame) con
 	return true;
 }
 
+bool Animation2D::TryLoadImageFrame(const std::string& line, const std::string& baseDirectory, std::shared_ptr<Texture2D>& outTexture) const
+{
+	std::string trimmed = TrimLine(line);
+	if (trimmed.empty() || trimmed[0] == '#')
+	{
+		return false;
+	}
+
+	if (trimmed.front() == '"' && trimmed.back() == '"' && trimmed.size() >= 2)
+	{
+		trimmed = trimmed.substr(1, trimmed.size() - 2);
+	}
+
+	std::filesystem::path resolvedPath(trimmed);
+	if (resolvedPath.is_relative() && !baseDirectory.empty())
+	{
+		resolvedPath = std::filesystem::path(baseDirectory) / resolvedPath;
+	}
+
+	if (!std::filesystem::exists(resolvedPath))
+	{
+		return false;
+	}
+
+	outTexture = CreateManagedTexture(resolvedPath.string());
+	return outTexture != nullptr && outTexture->ID != 0 && outTexture->width > 0 && outTexture->height > 0;
+}
+
 void Animation2D::AdvanceFrame()
 {
-	if (mFrames.size() <= 1)
+	const int frameCount = GetFrameCount();
+	if (frameCount <= 1)
 	{
 		return;
 	}
 
-	const int lastFrameIndex = static_cast<int>(mFrames.size()) - 1;
+	const int lastFrameIndex = frameCount - 1;
 	if (mCurrentFrameIndex < lastFrameIndex)
 	{
 		++mCurrentFrameIndex;

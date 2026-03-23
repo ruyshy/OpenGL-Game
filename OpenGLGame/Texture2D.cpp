@@ -11,7 +11,7 @@ void Texture2D::use()
 
 Texture2D TextureSystem::Generate(const char* filename)
 {
-	Texture2D result;
+	Texture2D result = {};
 
 	int width, height, numcomponents;
 	unsigned char* data;
@@ -52,7 +52,7 @@ Texture2D TextureSystem::Generate(const char* filename)
 
 Texture2D TextureSystem::Generate(std::string image)
 {
-	Texture2D result;
+	Texture2D result = {};
 
 	string copy = image;
 	int width, height, numcomponents;

@@ -19,6 +19,7 @@ public:
 	bool LoadFromFile(const char* filename);
 	bool LoadFromFile(const std::string& filename);
 	void SetFrames(const std::vector<vec4>& newFrames);
+	bool SetImageFrames(const std::vector<std::string>& imageFilenames);
 
 	void Update(double deltaTime);
 	void Apply(Texture2D& spriteTexture, VertexBufferObject2D& rectangle) const;
@@ -48,8 +49,9 @@ public:
 	void set_animation_speed(float newspeed);
 
 private:
-	bool LoadFromStream(std::istream& stream);
+	bool LoadFromStream(std::istream& stream, const std::string& baseDirectory);
 	bool TryParseFrameLine(const std::string& line, vec4& outFrame) const;
+	bool TryLoadImageFrame(const std::string& line, const std::string& baseDirectory, std::shared_ptr<Texture2D>& outTexture) const;
 	void AdvanceFrame();
 	void UploadUV(const vec4& normalizedFrame, VertexBufferObject2D& rectangle) const;
 	vec4 NormalizeFrame(const vec4& frame, const Texture2D& spriteTexture) const;
@@ -62,6 +64,7 @@ private:
 	bool mPaused = false;
 	bool mFinished = false;
 	std::vector<vec4> mFrames;
+	std::vector<std::shared_ptr<Texture2D>> mImageFrames;
 };
 
 #endif // !ANIMATION2D_H_
