@@ -6,6 +6,7 @@ C:\Project\OpenGLGame\OpenGLGame\MainWindow.cpp;C:\Project\OpenGLGame\OpenGLGame
 C:\Project\OpenGLGame\OpenGLGame\OpenGLWindow.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\OpenGLWindow.obj
 C:\Project\OpenGLGame\OpenGLGame\pch.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\pch.obj
 C:\Project\OpenGLGame\OpenGLGame\ResourceManager.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\ResourceManager.obj
+C:\Project\OpenGLGame\OpenGLGame\SoundManager.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\SoundManager.obj
 C:\Project\OpenGLGame\OpenGLGame\Sprite.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\Sprite.obj
 C:\Project\OpenGLGame\OpenGLGame\stb_image.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\stb_image.obj
 C:\Project\OpenGLGame\OpenGLGame\TextRenderer.cpp;C:\Project\OpenGLGame\OpenGLGame\x64\Debug\TextRenderer.obj

@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "MainWindow.h"
 
+#include "SoundManager.h"
+
 MainWindow::MainWindow()
 {
 
@@ -25,6 +27,12 @@ void MainWindow::initializeScene()
 	glEnable(GL_CULL_FACE);
 
 	glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE);
+
+	SoundManager& soundManager = SoundManager::Get();
+	if (!soundManager.Initialize())
+	{
+		std::cout << "SoundManager initialization skipped: " << soundManager.GetLastError() << std::endl;
+	}
 }
 
 void MainWindow::renderScene()
@@ -34,12 +42,12 @@ void MainWindow::renderScene()
 
 void MainWindow::updateScene()
 {
-
+	SoundManager::Get().Update();
 }
 
 void MainWindow::releaseScene()
 {
-
+	SoundManager::Get().Shutdown();
 }
 
 void MainWindow::onWindowSizeChanged(int width, int height)
