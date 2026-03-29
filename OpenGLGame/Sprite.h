@@ -11,6 +11,7 @@ class Shader;
 class VertexBufferObject2D;
 class Transform2D;
 class Texture2D;
+class Animation2D;
 
 class Sprite
 {
@@ -21,6 +22,7 @@ public:
 
 
 	void Draw();
+	void PlayAnimation(Animation2D& animation, double deltaTime);
 
 	bool checkCollision(std::shared_ptr<Sprite> other, double offset = 0.0f);
 	bool hasMoved();

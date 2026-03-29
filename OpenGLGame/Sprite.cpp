@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Sprite.h"
 
+#include "Animation2D.h"
 #include "Shader.h"
 
 #include "VertexBuffer2D.h"
@@ -31,13 +32,26 @@ Sprite::~Sprite()
 
 void Sprite::Draw()
 {
-	if (!mVisible)return;
+	if (!mVisible || mpShader == nullptr || mpTransform == nullptr || mpTextured == nullptr || mpVertexBufferObject == nullptr)
+	{
+		return;
+	}
 
 	mpShader->use();
 	mpShader->setFloat("zDepth", mZDepth);
 	mpShader->setMat4("model_matrx", mpTransform->Get());
 	mpTextured->use();
 	mpVertexBufferObject->Draw();
+}
+
+void Sprite::PlayAnimation(Animation2D& animation, double deltaTime)
+{
+	if (mpTextured == nullptr || mpVertexBufferObject == nullptr)
+	{
+		return;
+	}
+
+	animation.Play(*mpTextured, *mpVertexBufferObject, deltaTime);
 }
 
 bool Sprite::checkCollision(shared_ptr<Sprite> other, double offset)

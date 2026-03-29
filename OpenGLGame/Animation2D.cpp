@@ -426,9 +426,14 @@ vec4 Animation2D::NormalizeFrame(const vec4& frame, const Texture2D& spriteTextu
 		return vec4(0.0f);
 	}
 
+	const float normalizedWidth = frame.z / static_cast<float>(spriteTexture.width);
+	const float normalizedHeight = frame.w / static_cast<float>(spriteTexture.height);
+	const float normalizedX = frame.x / static_cast<float>(spriteTexture.width);
+	const float normalizedY = 1.0f - ((frame.y + frame.w) / static_cast<float>(spriteTexture.height));
+
 	return vec4(
-		frame.x / static_cast<float>(spriteTexture.width),
-		frame.y / static_cast<float>(spriteTexture.height),
-		frame.z / static_cast<float>(spriteTexture.width),
-		frame.w / static_cast<float>(spriteTexture.height));
+		normalizedX,
+		normalizedY,
+		normalizedWidth,
+		normalizedHeight);
 }

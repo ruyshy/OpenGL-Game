@@ -1,61 +1,62 @@
 #include "pch.h"
 #include "MainWindow.h"
 
-#include "SoundManager.h"
+#include "Camera2D.h"
 
 MainWindow::MainWindow()
 {
-
+    mpCamera2D = std::make_shared<Camera2D>();
 }
 
 MainWindow::~MainWindow()
 {
-
 }
 
 void MainWindow::initializeScene()
 {
-	glClearColor(0.0f, 0.5f, 1.0f, 1.0f);
+    glClearColor(0.08f, 0.10f, 0.14f, 1.0f);
 
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_BLEND);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_SCISSOR_TEST);
+    glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE);
 
-	glEnable(GL_SCISSOR_TEST);
-
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-	glEnable(GL_CULL_FACE);
-
-	glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE);
-
-	SoundManager& soundManager = SoundManager::Get();
-	if (!soundManager.Initialize())
-	{
-		std::cout << "SoundManager initialization skipped: " << soundManager.GetLastError() << std::endl;
-	}
+    if (mpCamera2D != nullptr)
+    {
+        mpCamera2D->SetViewportSize(static_cast<float>(std::max(getScreenWidth(), 1)), static_cast<float>(std::max(getScreenHeight(), 1)));
+    }
 }
 
 void MainWindow::renderScene()
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void MainWindow::updateScene()
 {
-	SoundManager::Get().Update();
 }
 
 void MainWindow::releaseScene()
 {
-	SoundManager::Get().Shutdown();
+    mpCamera2D.reset();
 }
 
 void MainWindow::onWindowSizeChanged(int width, int height)
 {
-
+    if (mpCamera2D != nullptr)
+    {
+        mpCamera2D->SetViewportSize(static_cast<float>(width), static_cast<float>(height));
+    }
 }
 
 void MainWindow::onMouseButtonPressed(int button, int action)
 {
+    (void)button;
+    (void)action;
+}
 
+std::shared_ptr<Camera2D> MainWindow::GetCamera2D() const
+{
+    return mpCamera2D;
 }

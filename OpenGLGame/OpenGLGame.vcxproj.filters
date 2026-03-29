@@ -36,9 +36,21 @@
     <ClCompile Include="SoundManager.cpp">
       <Filter>Management</Filter>
     </ClCompile>
+    <ClCompile Include="Animation2D.cpp">
+      <Filter>OpenGL\Animation2D</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh3D.cpp">
+      <Filter>OpenGL\Mesh3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Model3D.cpp">
+      <Filter>OpenGL\Model3D</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Camera2D.h">
+      <Filter>OpenGL\Camera2D</Filter>
+    </ClInclude>
     <ClInclude Include="OpenGLWindow.h">
       <Filter>OpenGL\Window</Filter>
     </ClInclude>
@@ -75,6 +87,18 @@
     <ClInclude Include="SoundManager.h">
       <Filter>Management</Filter>
     </ClInclude>
+    <ClInclude Include="Animation2D.h">
+      <Filter>OpenGL\Animation2D</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera3D.h">
+      <Filter>OpenGL\Camera3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh3D.h">
+      <Filter>OpenGL\Mesh3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Model3D.h">
+      <Filter>OpenGL\Model3D</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="OpenGL">
@@ -109,6 +133,21 @@
     </Filter>
     <Filter Include="OpenGL\Text">
       <UniqueIdentifier>{748f22ca-e79a-4c61-b42c-4f46cf4ea7c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenGL\Animation2D">
+      <UniqueIdentifier>{88b1de44-c262-48ca-b1db-2f3cd606d74f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenGL\Camera3D">
+      <UniqueIdentifier>{d364b925-02d0-413f-b49c-8e59b8fe7fe6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenGL\Camera2D">
+      <UniqueIdentifier>{2c74b778-a3be-42d7-bf62-fa1d4e46a84d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenGL\Mesh3D">
+      <UniqueIdentifier>{e0b53226-5034-470e-b496-fafadb623bc2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenGL\Model3D">
+      <UniqueIdentifier>{471a85fc-0df9-47cb-a5bf-417177ba071a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
